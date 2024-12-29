@@ -5,7 +5,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "MySchema\\": "src/"
+            "MySchema\\Server\\": "src/server/src/",
+            "MySchema\\ServerTest\\": "src/server/test/"
         }
     },
     "authors": [
@@ -14,5 +15,12 @@
             "email": "collinspamba@outlook.com"
         }
     ],
-    "require": {}
+    "require": {
+        "laminas/laminas-diactoros": "^3.5",
+        "laminas/laminas-stratigility": "^4.1",
+        "laminas/laminas-httphandlerrunner": "^2.11",
+        "laminas/laminas-config-aggregator": "^1.17",
+        "laminas/laminas-servicemanager": "^4.3",
+        "symfony/console": "^7.2"
+    }
 }
