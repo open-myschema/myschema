@@ -1,8 +1,8 @@
 {
     "name": "myschema/myschema",
-    "description": "content manager",
+    "description": "Content manager",
     "type": "project",
-    "license": "MIT",
+    "license": "",
     "autoload": {
         "psr-4": {
             "MySchema\\": "src/",
