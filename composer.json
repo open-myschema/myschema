@@ -1,11 +1,12 @@
 {
     "name": "myschema/myschema",
-    "description": "content manager",
+    "description": "Content manager",
     "type": "project",
-    "license": "MIT",
+    "license": "",
     "autoload": {
         "psr-4": {
             "MySchema\\": "src/",
+            "MySchema\\App\\": "app/src/",
             "MySchemaTest\\": "test/"
         }
     },
@@ -22,6 +23,7 @@
         "laminas/laminas-config-aggregator": "^1.17",
         "laminas/laminas-servicemanager": "^4.3",
         "symfony/console": "^7.2",
-        "psr/event-dispatcher": "^1.0"
+        "psr/event-dispatcher": "^1.0",
+        "doctrine/dbal": "^4.2"
     }
 }

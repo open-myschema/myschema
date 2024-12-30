@@ -1,4 +1,8 @@
-# Table of Contents
+# MySchema
+
+Free and open content manager
+
+:construction: This package is under development.
 
 ## PHP Modules
 <ul>

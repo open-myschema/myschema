@@ -1,3 +1,7 @@
+/.vscode/
 /vendor/
 local.php
 *local.php
+*.sqlite
+/app/
+Page/

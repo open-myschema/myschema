@@ -17,6 +17,7 @@ final class ConfigProvider
     {
         return [
             'factories' => [
+                ActionMiddleware::class => ActionMiddlewareFactory::class,
                 \Psr\EventDispatcher\EventDispatcherInterface::class => ActionDispatchFactory::class,
             ],
         ];
