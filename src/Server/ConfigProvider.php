@@ -52,6 +52,7 @@ final class ConfigProvider
     {
         return [
             Middleware\ErrorHandlerMiddleware::class,
+            \MySchema\Application\ActionMiddleware::class,
             Middleware\FinalResponseMiddleware::class,
         ];
     }

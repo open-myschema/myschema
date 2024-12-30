@@ -2,7 +2,7 @@
 
 Free and open content manager
 
-:contsruction: This package is under development.
+:construction: This package is under development.
 
 ## PHP Modules
 <ul>
