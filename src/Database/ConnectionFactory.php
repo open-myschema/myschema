@@ -15,7 +15,7 @@ final class ConnectionFactory
     {
     }
 
-    public function connect(string $connection): Connection
+    public function connect(string $connection = 'main'): Connection
     {
         if (! isset($this->connection)) {
             $config = $this->container->get('config')['database'];

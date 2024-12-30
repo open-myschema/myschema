@@ -9,8 +9,12 @@ use Laminas\ConfigAggregator\PhpFileProvider;
 
 $config = new ConfigAggregator([
     \Laminas\Diactoros\ConfigProvider::class,
+    \Mezzio\Router\ConfigProvider::class,
     \MySchema\Server\ConfigProvider::class,
     \MySchema\Application\ConfigProvider::class,
+    \MySchema\Admin\ConfigProvider::class,
+    \MySchema\Database\ConfigProvider::class,
+    \MySchema\Page\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
 

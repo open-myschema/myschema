@@ -40,6 +40,7 @@ final class ConfigProvider
             'factories' => [
                 Console\HelloWorldCommand::class => \Laminas\ServiceManager\Factory\InvokableFactory::class,
                 ErrorResponseGenerator::class => ErrorResponseGeneratorFactory::class,
+                \Mezzio\Router\RouterInterface::class => RouterFactory::class,
                 Middleware\ErrorHandlerMiddleware::class => Middleware\ErrorHandlerMiddlewareFactory::class,
                 Middleware\FinalResponseMiddleware::class => \Laminas\ServiceManager\Factory\InvokableFactory::class,
                 Runtime\Provider\Apache2Handler::class => Runtime\Provider\Apache2HandlerFactory::class,
@@ -52,7 +53,8 @@ final class ConfigProvider
     {
         return [
             Middleware\ErrorHandlerMiddleware::class,
-            \MySchema\Application\ActionMiddleware::class,
+            \Mezzio\Router\Middleware\RouteMiddleware::class,
+            \Mezzio\Router\Middleware\DispatchMiddleware::class,
             Middleware\FinalResponseMiddleware::class,
         ];
     }

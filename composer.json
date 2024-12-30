@@ -17,13 +17,15 @@
         }
     ],
     "require": {
-        "laminas/laminas-diactoros": "^3.5",
-        "laminas/laminas-stratigility": "^4.1",
-        "laminas/laminas-httphandlerrunner": "^2.11",
+        "doctrine/dbal": "^4.2",
         "laminas/laminas-config-aggregator": "^1.17",
-        "laminas/laminas-servicemanager": "^4.3",
-        "symfony/console": "^7.2",
+        "laminas/laminas-diactoros": "^3.5",
+        "laminas/laminas-httphandlerrunner": "^2.11",
+        "laminas/laminas-hydrator": "^4.16",
+        "laminas/laminas-inputfilter": "^2.31",
+        "laminas/laminas-stratigility": "^4.1",
         "psr/event-dispatcher": "^1.0",
-        "doctrine/dbal": "^4.2"
+        "symfony/console": "^7.2",
+        "mezzio/mezzio-fastroute": "^3.12"
     }
 }

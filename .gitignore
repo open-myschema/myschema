@@ -5,3 +5,4 @@ local.php
 *.sqlite
 /app/
 Page/
+Content/

@@ -9,8 +9,21 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'console' => $this->getConsoleCommands(),
             'database' => $this->getDatabaseConfig(),
             'dependencies' => $this->getDependencies(),
+            'schema' => $this->getSchemaConfig(),
+        ];
+    }
+
+    private function getConsoleCommands(): array
+    {
+        return [
+            'commands' => [
+                Migrator\RollBackCommand::class,
+                Migrator\RunCommand::class,
+                Migrator\StatusCommand::class,
+            ],
         ];
     }
 
@@ -30,6 +43,51 @@ class ConfigProvider
 
     private function getDependencies(): array
     {
-        return [];
+        return [
+            'factories' => [
+                Migrator\RollBackCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
+                Migrator\RunCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
+                Migrator\StatusCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
+            ],
+        ];
+    }
+
+    private function getSchemaConfig(): array
+    {
+        return [
+            'main' => [
+                'migration' => [
+                    'columns' => [
+                        'id' => [
+                            'type' => 'bigint',
+                            'unsigned' => TRUE,
+                            'autoIncrement' => TRUE,
+                        ],
+                        'name' => [
+                            'type' => 'string',
+                        ],
+                        'definitions' => [
+                            'type' => 'json',
+                        ],
+                        'status' => [
+                            'type' => 'smallint',
+                            'default' => 0,
+                        ],
+                        'created_at' => [
+                            'type' => 'datetimetz',
+                        ],
+                        'executed_at' => [
+                            'type' => 'datetimetz',
+                            'notnull' => FALSE,
+                        ],
+                    ],
+                    'indexes' => [
+                        'migration_status' => [
+                            'column' => ['status'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
