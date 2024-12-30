@@ -5,8 +5,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "MySchema\\Server\\": "src/server/src/",
-            "MySchema\\ServerTest\\": "src/server/test/"
+            "MySchema\\": "src/",
+            "MySchemaTest\\": "test/"
         }
     },
     "authors": [
@@ -21,6 +21,8 @@
         "laminas/laminas-httphandlerrunner": "^2.11",
         "laminas/laminas-config-aggregator": "^1.17",
         "laminas/laminas-servicemanager": "^4.3",
-        "symfony/console": "^7.2"
+        "symfony/console": "^7.2",
+        "mezzio/mezzio-fastroute": "^3.12",
+        "psr/event-dispatcher": "^1.0"
     }
 }

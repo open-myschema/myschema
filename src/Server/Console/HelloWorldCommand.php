@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Server\Command;
+namespace MySchema\Server\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
