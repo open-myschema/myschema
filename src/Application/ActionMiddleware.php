@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MySchema\Application;
 
 use Mezzio\Router\RouteResult;
-use MySchema\Page\RenderPageAction;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
