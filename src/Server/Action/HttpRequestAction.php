@@ -34,11 +34,6 @@ class HttpRequestAction extends Action implements StoppableEventInterface
         return isset($this->response);
     }
 
-    public function isValid(): bool
-    {
-        return true;
-    }
-
     public function setResponse(ResponseInterface $response): void
     {
         $this->response = $response;

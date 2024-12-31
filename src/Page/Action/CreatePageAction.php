@@ -51,10 +51,4 @@ class CreatePageAction extends Action
     {
         return TRUE;
     }
-
-    public function isValid(): bool
-    {
-        return $this->hasParam('actionName')
-            && $this->getParam('actionName') === self::class;
-    }
 }

@@ -15,6 +15,7 @@ $config = new ConfigAggregator([
     \MySchema\Admin\ConfigProvider::class,
     \MySchema\Database\ConfigProvider::class,
     \MySchema\Page\ConfigProvider::class,
+    \MySchema\Platform\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
 

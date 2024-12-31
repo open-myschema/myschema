@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types= 1);
+
+namespace MySchema\Platform\Web\DomTemplate\Resource;
+
+trait WrapperElementTrait
+{
+    public function getWrapperElement(): Element
+    {
+        $config = $this->config['wrapper'] ?? [
+            'tag' => 'div'
+        ];
+        return new Element(new ElementConfig($config));
+    }
+}

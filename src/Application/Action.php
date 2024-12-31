@@ -55,6 +55,4 @@ abstract class Action
     }
 
     abstract public function assertAuthorization(): bool;
-
-    abstract public function isValid(): bool;
 }
