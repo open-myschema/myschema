@@ -1,0 +1,1 @@
+INSERT INTO page (title, description, url) VALUES(:title, :description, :url)

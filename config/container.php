@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Laminas\ServiceManager\ServiceManager;
-use MySchema\Application\LazyActionListener;
+use MySchema\Action\LazyActionListener;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
 // load configuration

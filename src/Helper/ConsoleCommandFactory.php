@@ -2,7 +2,7 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Application;
+namespace MySchema\Helper;
 
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerInterface;

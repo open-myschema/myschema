@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MySchema\Platform;
 
-use MySchema\Platform\RestAPI\RestPlatform;
+use MySchema\Platform\RestAPI\RestAPIPlatform;
 use MySchema\Platform\Web\WebPlatform;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -21,7 +21,7 @@ class PlatformMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $platform = false !== \mb_strpos($request->getUri()->getPath(), '/api/')
-            ? $this->container->get(RestPlatform::class)
+            ? $this->container->get(RestAPIPlatform::class)
             : $this->container->get(WebPlatform::class);
 
         if (! $platform instanceof PlatformInterface) {

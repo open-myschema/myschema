@@ -4,18 +4,17 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform\Web\DomTemplate;
 
-use League\Flysystem\FileAttributes;
-use League\Flysystem\Filesystem;
-use MySchema\Application\ActionResult;
+use MySchema\Action\ActionResult;
 use MySchema\Platform\Web\DomTemplate\Resource\Block;
 use MySchema\Platform\Web\DomTemplate\Resource\BlockConfig;
 use MySchema\Platform\Web\TemplateRendererInterface;
+use MySchema\Resource\ResourceManager;
 
 class DomTemplateRenderer implements TemplateRendererInterface
 {
     private string $template;
 
-    public function __construct(private Filesystem $filesystem)
+    public function __construct(private ResourceManager $resourceManager)
     {
     }
 
@@ -54,73 +53,16 @@ class DomTemplateRenderer implements TemplateRendererInterface
             throw new \InvalidArgumentException("Template not set");
         }
 
-        $split = \explode('::', $this->template);
-        if (\count($split) !== 2) {
-            throw new \InvalidArgumentException(\sprintf(
-                "Invalid template name %s",
-                $this->template
-            ));
-        }
-
-        $namespace = $split[0];
-        $template = $split[1];
-
         $blocks = [];
-        $definition = $this->getResource($namespace, $template);
+        $definition = $this->resourceManager->getTemplate($this->template);
         foreach ($definition['blocks'] ?? [] as $blockName) {
-            $blocks[$blockName] = $this->getResource($namespace, $blockName);
+            $blocks[$blockName] = $this->resourceManager->getBlock($blockName);
         }
 
         return [
             'title' => $definition['title'] ?? '',
             'blocks' => $blocks,
         ];
-    }
-
-    private function getResource(string $directory, string $resourceName): array
-    {
-        if (false !== \strpos($resourceName, '/')) {
-            $nameSplit = \explode('/', $resourceName);
-            if (\count($nameSplit) > 1) {
-                if (false !== \strpos($nameSplit[0], '::')) {
-                    $subSplit = \explode('::', $nameSplit[0]);
-                    $directory = $directory . DIRECTORY_SEPARATOR . $subSplit[1];
-                } else {
-                    $directory = $directory . DIRECTORY_SEPARATOR . $nameSplit[0];
-                }
-
-                return $this->getResource($directory, \implode('/', \array_slice($nameSplit, 1)));
-            }
-        }
-
-        foreach ($this->filesystem->listContents($directory) as $item) {
-            if ($item instanceof FileAttributes) {
-                $pathSplit = \explode('/', $item->path());
-                if ($resourceName === $pathSplit[\count($pathSplit) - 1]) {
-                    return $this->parseFile($this->filesystem->read($item->path()), $resourceName);
-                }
-            }
-        }
-
-        throw new \InvalidArgumentException(\sprintf(
-            "Resource %s in directory %s not found",
-            $resourceName,
-            $directory
-        ));
-    }
-
-    private function parseFile(string $contents, string $resourceName): array
-    {
-        if (false !== \strpos($resourceName, '.json')) {
-            $parser = new DomJsonTemplateParser();
-            return $parser->parse($contents);
-        }
-
-        throw new \InvalidArgumentException(sprintf(
-            "Could not parse file %s. Appropriate %s implementation not found",
-            $resourceName,
-            DomTemplateParserInterface::class
-        ));
     }
 
     private function renderBody(\Dom\HTMLDocument $document, array $templateConfig, array $params): \Dom\HTMLElement

@@ -7,7 +7,7 @@ namespace MySchema\Server\Action;
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Stratigility\MiddlewarePipe;
-use MySchema\Application\ActionHandlerInterface;
+use MySchema\Action\ActionHandlerInterface;
 use MySchema\Server\Action\HttpRequestAction;
 use MySchema\Server\Middleware\LazyLoadingMiddleware;
 use Psr\Container\ContainerInterface;

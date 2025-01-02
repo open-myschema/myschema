@@ -1,0 +1,6 @@
+{
+    "title": "Create a Page - MySchema",
+    "blocks": [
+        "admin::create-page-form"
+    ]
+}

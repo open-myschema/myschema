@@ -4,7 +4,7 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform;
 
-use MySchema\Application\ActionResult;
+use MySchema\Action\ActionResult;
 use Psr\Http\Message\ResponseInterface;
 
 class SimpleJsonRenderer implements AcionResultRendererInterface

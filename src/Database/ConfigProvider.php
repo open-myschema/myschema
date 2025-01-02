@@ -45,9 +45,9 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                Migrator\RollBackCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
-                Migrator\RunCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
-                Migrator\StatusCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
+                Migrator\RollBackCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\RunCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\StatusCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
             ],
         ];
     }

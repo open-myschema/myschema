@@ -6,7 +6,7 @@ namespace MySchema\Server\Action;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\Diactoros\ResponseFactory;
-use MySchema\Application\Action;
+use MySchema\Action\Action;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

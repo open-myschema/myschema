@@ -6,15 +6,22 @@ namespace MySchema\Page\Action;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\InputFilter\Input;
-use MySchema\Application\Action;
-use MySchema\Application\ActionResult;
+use MySchema\Action\Action;
+use MySchema\Action\ActionResult;
 use MySchema\Database\ConnectionFactory;
+use MySchema\Helper\ServiceFactoryTrait;
 use Psr\Container\ContainerInterface;
 
 class CreatePageAction extends Action
 {
+    use ServiceFactoryTrait;
+
     public function __invoke(ContainerInterface $container): ActionResult
     {
+        if ($this->hasParam('requestMethod') && $this->getParam('requestMethod') === 'GET') {
+            return new ActionResult;
+        }
+
         // verify input
         $title = new Input('title');
         $description = new Input('description');
@@ -24,17 +31,21 @@ class CreatePageAction extends Action
             ->add($title)
             ->add($description)
             ->add($url)
-            ->setData($this->params);
+            ->setData($this->getParam('parsedBody'));
 
         if (! $inputFilter->isValid()) {
-            $code = StatusCodeInterface::STATUS_BAD_REQUEST;
-            return new ActionResult($inputFilter->getMessages(), $code);
+            return new ActionResult(
+                data: false,
+                code: StatusCodeInterface::STATUS_BAD_REQUEST,
+                messages: $inputFilter->getMessages()
+            );
         }
 
         // prep to save
         $db = (new ConnectionFactory($container))->connect();
+        $resourceManager = $this->getResourceManager($container);
         $adapter = $db->getAdapter();
-        $sql = "INSERT INTO page (title, description, url) VALUES(:title, :description, :url)";
+        $sql = $resourceManager->getQuery('admin::create-page');
         $insert = $adapter->write($sql, [
             'title' => $inputFilter->getValue('title'),
             'description' => $inputFilter->getValue('description'),
@@ -44,7 +55,7 @@ class CreatePageAction extends Action
         $statusCode = TRUE === $insert ? StatusCodeInterface::STATUS_CREATED : StatusCodeInterface::STATUS_EXPECTATION_FAILED;
         $message = TRUE === $insert ? "Page created" : "Failed to save page";
 
-        return new ActionResult($insert, $statusCode, $message);
+        return new ActionResult($insert, $statusCode, messages: [$message]);
     }
 
     public function assertAuthorization(): bool

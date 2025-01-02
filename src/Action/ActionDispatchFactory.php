@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Application;
+namespace MySchema\Action;
 
-use MySchema\Application\ActionDispatch;
+use MySchema\Action\ActionDispatch;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 

@@ -1,6 +1,5 @@
-## Application Module
+## Action Module
 
-### Actions
 Actions are units of functionality, business or technical. They correspond to the notion of 'events'.
 
 Included is a basic implementation of [PSR-14](https://www.php-fig.org/psr/psr-14/):

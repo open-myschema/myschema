@@ -16,13 +16,10 @@ class ConfigProvider
     private function getDependencies(): array
     {
         return [
-            'aliases' => [
-                Web\TemplateRendererResolverInterface::class => Web\DomTemplate\DomTemplateRendererResolver::class,
-            ],
             'factories' => [
                 PlatformMiddleware::class => PlatformMiddlewareFactory::class,
                 RestAPI\RestAPIPlatform::class => RestAPI\RestAPIPlatformFactory::class,
-                Web\DomTemplate\DomTemplateRendererResolver::class => \Laminas\ServiceManager\Factory\InvokableFactory::class,
+                Web\DomTemplate\DomTemplateRenderer::class => Web\DomTemplate\DomTemplateRendererFactory::class,
                 Web\WebPlatform::class => Web\WebPlatformFactory::class,
             ],
         ];

@@ -4,8 +4,7 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform\Web\DomTemplate\Resource;
 
-use function array_key_exists;
-use function count;
+use Laminas\Escaper\Escaper;
 
 final class Element
 {
@@ -41,6 +40,7 @@ final class Element
         // text content
         'blockquote', 'dd', 'div', 'dl', 'dt', 'figcaption', 'figure', 'hr', 'li', 'menu', 'ol', 'p', 'pre', 'ul',
     ];
+    private Escaper $escaper;
 
     public function __construct(protected ElementConfig $config)
     {
@@ -50,6 +50,8 @@ final class Element
                 $config->getTag(),
             ));
         }
+
+        $this->escaper = new Escaper();
     }
 
     public function render(\Dom\HTMLDocument $document, array $params = []): \Dom\HTMLElement
@@ -76,7 +78,8 @@ final class Element
         if ($this->config->hasStyle()) {
             $styles = '';
             foreach ($this->config->getStyle() as $prop => $value) {
-                $styles .= "$prop:$value;";
+                $clean = $this->escaper->escapeHtmlAttr($value);
+                $styles .= "$prop:$clean;";
             }
             $attributes['style'] = $styles;
         }
@@ -89,7 +92,7 @@ final class Element
     private function setChildren(\Dom\HTMLDocument $document, \Dom\HTMLElement $element, array $params): void
     {
         if ($this->config->hasChildren()) {
-            for ($i = 0; $i < count($this->config->getChildren()); $i++) {
+            for ($i = 0; $i < \count($this->config->getChildren()); $i++) {
                 $childConfig = $this->config->getChildren()[$i];
                 $childElement = new Element(new ElementConfig($childConfig));
                 $element->appendChild($childElement->render($document, $params));
@@ -100,11 +103,11 @@ final class Element
     private function setValue(\Dom\HTMLElement $element, array $params): void
     {
         if ($this->config->hasValue()) {
-            $value = array_key_exists($this->config->getValue(), $params)
+            $value = \array_key_exists($this->config->getValue(), $params)
                 ? $params[$this->config->getValue()]
                 : $this->config->getValue();
 
-            $element->textContent = $value;
+            $element->textContent = $this->escaper->escapeHtml($value);
         }
     }
 }

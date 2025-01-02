@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Application;
+namespace MySchema\Action;
 
 use Mezzio\Router\RouteResult;
+use MySchema\Platform\PlatformInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,9 +37,19 @@ class ActionMiddleware implements MiddlewareInterface
         $action->setParams([
             'requestMethod' => $request->getMethod(),
             'parsedBody' => $request->getParsedBody(),
+            'queryParams' => $request->getQueryParams(),
+            'serverParams' => $request->getServerParams(),
+            'cookieParams' => $request->getCookieParams(),
+            'headers' => $request->getHeaders(),
+            'uploadedFiles' => $request->getUploadedFiles(),
+            'uri' => (string) $request->getUri(),
         ]);
-        $action($this->container);
+        $result = $action($this->container);
 
-        return $handler->handle($request);
+        // return the result
+        $platform = $request->getAttribute(PlatformInterface::class);
+        assert($platform instanceof PlatformInterface);
+        
+        return $platform->formatResponse($request, $result);
     }
 }

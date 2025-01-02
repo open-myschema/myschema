@@ -4,7 +4,7 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform;
 
-use MySchema\Application\ActionResult;
+use MySchema\Action\ActionResult;
 
 interface AcionResultRendererInterface
 {

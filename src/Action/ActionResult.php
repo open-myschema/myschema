@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Application;
+namespace MySchema\Action;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -12,7 +12,9 @@ class ActionResult
     public function __construct(
         private mixed $data = null,
         private int $code = StatusCodeInterface::STATUS_OK,
-        private string $message = ""
+        private array $headers = [],
+        private array $messages = [],
+        private string $template = ''
     ) {
     }
 
@@ -26,9 +28,14 @@ class ActionResult
         return $this->data;
     }
 
-    public function getMessage(): mixed
+    public function getHeaders(): array
     {
-        return $this->message;
+        return $this->headers;
+    }
+
+    public function getMessages(): array
+    {
+        return (array) $this->messages;
     }
 
     public function getDataType(): string
@@ -45,6 +52,16 @@ class ActionResult
         return \get_debug_type($this->data);
     }
 
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function hasTemplate(): bool
+    {
+        return '' !== $this->template;
+    }
+
     public function setCode(int $code): static
     {
         $this->code = $code;
@@ -57,9 +74,21 @@ class ActionResult
         return $this;
     }
 
+    public function setHeaders(array $headers): static
+    {
+        $this->headers = $headers;
+        return $this;
+    }
+
     public function setMessage(string $message): static
     {
-        $this->message = $message;
+        $this->messages[] = $message;
+        return $this;
+    }
+
+    public function setTemplate(string $template): static
+    {
+        $this->template = $template;
         return $this;
     }
 }

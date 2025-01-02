@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Application;
+namespace MySchema\Action;
 
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;

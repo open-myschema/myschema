@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace MySchema\Platform\Web\Action;
 
-use MySchema\Application\Action;
-use MySchema\Application\ActionResult;
+use MySchema\Action\Action;
+use MySchema\Action\ActionResult;
 use Psr\Http\Message\ServerRequestInterface;
 
-class HtmlRendererdAction extends Action
+class HtmlRenderedAction extends Action
 {
     public function __construct(
         private ServerRequestInterface $request,

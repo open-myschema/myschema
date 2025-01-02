@@ -21,8 +21,7 @@ class FinalResponseMiddleware implements MiddlewareInterface
 
         return $platform->formatResponse(
             $request,
-            new ActionResult(null, StatusCodeInterface::STATUS_NOT_FOUND),
-            StatusCodeInterface::STATUS_NOT_FOUND
+            new ActionResult(null, StatusCodeInterface::STATUS_NOT_FOUND)
         );
     }
 }

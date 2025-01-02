@@ -3,5 +3,5 @@
 local.php
 *local.php
 *.sqlite
-/app/
+app/
 Content/

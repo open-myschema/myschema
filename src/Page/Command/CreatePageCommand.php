@@ -47,18 +47,20 @@ class CreatePageCommand extends Command
         // execute action
         $action = new CreatePageAction;
         $action->setParams([
-            'title' => $input->getOption('title'),
-            'description' => $input->getOption('description'),
-            'url' => $input->getOption('url'),
+            'parsedBody' => [
+                'title' => $input->getOption('title'),
+                'description' => $input->getOption('description'),
+                'url' => $input->getOption('url'),
+            ]
         ]);
         $result = $action($this->container);
 
         if (TRUE !== $result->getData()) {
-            $io->error($result->getMessage());
+            $io->error($result->getMessages());
             return Command::FAILURE;
         }
 
-        $io->success($result->getMessage());
+        $io->success($result->getMessages());
         return Command::SUCCESS;
     }
 }
