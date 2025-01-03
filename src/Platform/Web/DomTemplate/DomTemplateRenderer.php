@@ -71,6 +71,18 @@ class DomTemplateRenderer implements TemplateRendererInterface
 
         // render blocks
         foreach ($templateConfig['blocks'] as $blockDefinition) {
+            $elements = [];
+            foreach ($blockDefinition['elements'] ?? [] as $element) {
+                if (isset($element['tag']) && $element['tag'] === 'form') {
+                    $formName = $element['value'];
+                    unset($element['value']);
+                    $formDefinition = $this->resourceManager->getForm($formName);
+                    $element['attributes'] = $formDefinition['attributes'] ?? [];
+                    $element['children'] = $formDefinition['elements'];
+                }
+                $elements[] = $element;
+            }
+            $blockDefinition['elements'] = $elements;
             $block = new Block(new BlockConfig($blockDefinition));
             $body->appendChild($block->render($document, $params));
         }

@@ -9,7 +9,17 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'actions' => $this->getActionsConfig(),
             'dependencies' => $this->getDependencies(),
+        ];
+    }
+
+    private function getActionsConfig(): array
+    {
+        return [
+            Web\Listener\RenderTemplateListener::class => [
+                Web\Action\HtmlRenderedAction::class,
+            ],
         ];
     }
 

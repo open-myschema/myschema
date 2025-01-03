@@ -1,0 +1,35 @@
+{
+    "attributes": {
+        "action": "",
+        "method": "post"
+    },
+    "elements": [
+        {
+            "tag": "div",
+            "children": [
+                {
+                    "tag": "label",
+                    "value": "Title",
+                    "attributes": {
+                        "for": "page-title"
+                    }
+                },
+                {
+                    "tag": "input",
+                    "attributes": {
+                        "id": "page-title",
+                        "name": "page-title",
+                        "required": "true"
+                    }
+                }
+            ]
+        },
+        {
+            "tag": "button",
+            "value": "Create Page",
+            "attributes": {
+                "type": "submit"
+            }
+        }
+    ]
+}

@@ -24,6 +24,18 @@ class ResourceManager
         return $parser->parseResource($block);
     }
 
+    public function getForm(string $formName): array|bool
+    {
+        $config = $this->resourcesConfig['forms'] ?? [];
+        $block = $this->getResource($formName, $config);
+        if (! $block) return FALSE;
+
+        $parser = $this->getParser($config[$formName]);
+        if (! $parser) return FALSE;
+
+        return $parser->parseResource($block);
+    }
+
     public function getQuery(string $queryName): string|bool
     {
         $config = $this->resourcesConfig['queries'] ?? [];

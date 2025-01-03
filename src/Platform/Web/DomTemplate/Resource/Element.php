@@ -44,8 +44,8 @@ final class Element
 
     public function __construct(protected ElementConfig $config)
     {
-        if (! in_array($config->getTag(), self::VALID_ELEMENTS, true)) {
-            throw new \InvalidArgumentException(sprintf(
+        if (! \in_array($config->getTag(), self::VALID_ELEMENTS, true)) {
+            throw new \InvalidArgumentException(\sprintf(
                 "Invalid or unsupported HTML element %s",
                 $config->getTag(),
             ));
@@ -83,6 +83,8 @@ final class Element
             }
             $attributes['style'] = $styles;
         }
+
+        $attributes = \array_merge($this->config->getAttributes(), $attributes);
 
         foreach ($attributes as $key => $value) {
             $element->setAttribute($key, $value);

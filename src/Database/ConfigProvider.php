@@ -10,7 +10,6 @@ class ConfigProvider
     {
         return [
             'console' => $this->getConsoleCommands(),
-            'database' => $this->getDatabaseConfig(),
             'dependencies' => $this->getDependencies(),
             'schema' => $this->getSchemaConfig(),
         ];
@@ -23,20 +22,6 @@ class ConfigProvider
                 Migrator\RollBackCommand::class,
                 Migrator\RunCommand::class,
                 Migrator\StatusCommand::class,
-            ],
-        ];
-    }
-
-    private function getDatabaseConfig(): array
-    {
-        return [
-            'main' => [
-                'driver' => 'pdo_sqlite',
-                'driverOptions' => [
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                ],
-                'memory' => TRUE,
             ],
         ];
     }

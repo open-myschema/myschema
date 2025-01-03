@@ -23,12 +23,11 @@ class ConfigProvider
     private function getRoutes(): array
     {
         return [
-            '/admin/page/new' => [
+            '/' => [
                 'methods' => ['GET', 'POST'],
-                'name' => 'admin::create-page',
+                'name' => 'main::dashboard',
                 'options' => [
-                    'action' => \MySchema\Page\Action\CreatePageAction::class,
-                    'template' => 'admin::create-page'
+                    'template' => 'main::dashboard'
                 ],
             ],
         ];
@@ -40,6 +39,9 @@ class ConfigProvider
             'blocks' => [
                 'admin::error-404' => '/resources/blocks/404.json',
                 'admin::create-page-form' => '/resources/blocks/create-page-form.json',
+            ],
+            'forms' => [
+                'admin::create-page' => '/resources/forms/create-page.json',
             ],
             'queries' => [
                 'admin::create-page' => '/resources/queries/create-page.sql',
