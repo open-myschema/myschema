@@ -6,7 +6,7 @@
     "autoload": {
         "psr-4": {
             "MySchema\\": "src/",
-            "MySchema\\App\\": "app/src/",
+            "MySchema\\App\\": "apps/",
             "MySchemaTest\\": "test/"
         }
     },

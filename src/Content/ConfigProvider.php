@@ -10,6 +10,7 @@ class ConfigProvider
     {
         return [
             'dependencies' => $this->getDependencies(),
+            'migrations' => $this->getMigrations(),
             'resources' => $this->getResources(),
             'routes' => $this->getRoutes(),
         ];
@@ -18,6 +19,19 @@ class ConfigProvider
     private function getDependencies(): array
     {
         return [];
+    }
+
+    private function getMigrations(): array
+    {
+        return [
+            'main' => [
+                'content_types' => [
+                    'description' => 'Create content types',
+                    'up' => '/resources/migrations/contenttypes/up.sql',
+                    'down' => '/resources/migrations/contenttypes/down.sql',
+                ]
+            ],
+        ];
     }
 
     private function getResources(): array
