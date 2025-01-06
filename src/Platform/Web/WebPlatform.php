@@ -89,7 +89,7 @@ class WebPlatform implements PlatformInterface
         ));
     }
 
-    private function resolveTemplate(ServerRequestInterface $request, ActionResult $result, string $default = 'admin::error-404'): string
+    private function resolveTemplate(ServerRequestInterface $request, ActionResult $result, string $default = 'content::error-404'): string
     {
         if ($result->hasTemplate()) {
             return $result->getTemplate();

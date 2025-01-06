@@ -12,7 +12,6 @@ $config = new ConfigAggregator([
     \Mezzio\Router\ConfigProvider::class,
     \MySchema\Server\ConfigProvider::class,
     \MySchema\Action\ConfigProvider::class,
-    \MySchema\Admin\ConfigProvider::class,
     \MySchema\Database\ConfigProvider::class,
     \MySchema\Platform\ConfigProvider::class,
     \MySchema\Resource\ConfigProvider::class,
