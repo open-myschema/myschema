@@ -4,17 +4,34 @@ declare(strict_types=1);
 
 namespace MySchema\Database;
 
-use MySchema\Database\Adapter\PostgresAdapter;
-use MySchema\Database\Adapter\SQLiteAdapter;
-
-class Connection extends \Doctrine\DBAL\Connection
+class Connection
 {
-    public function getAdapter(): DatabaseInterface
+    public function __construct(private \PDO $pdo)
     {
-        $params = $this->getParams();
-        return match ($params['driver'] ?? 'pdo_sqlite') {
-            'pdo_pgsql', 'pgsql' => new PostgresAdapter($this),
-            default => new SQLiteAdapter($this)
-        };
+    }
+
+    public function read(string $query, array $params = []): array
+    {
+        $stmt = $this->prepareStatement($query, $params);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function write(string $query, array $params = []): bool
+    {
+        $stmt = $this->prepareStatement($query, $params);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0 ? TRUE : FALSE;
+    }
+
+    private function prepareStatement(string $sql, array $params): \PDOStatement
+    {
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($params as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+
+        return $stmt;
     }
 }

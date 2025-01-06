@@ -53,6 +53,7 @@ final class ConfigProvider
     {
         return [
             Middleware\ErrorHandlerMiddleware::class,
+            \MySchema\Platform\PlatformMiddleware::class,
             \Mezzio\Router\Middleware\RouteMiddleware::class,
             \Mezzio\Router\Middleware\DispatchMiddleware::class,
             Middleware\FinalResponseMiddleware::class,

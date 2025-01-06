@@ -11,10 +11,11 @@ $config = new ConfigAggregator([
     \Laminas\Diactoros\ConfigProvider::class,
     \Mezzio\Router\ConfigProvider::class,
     \MySchema\Server\ConfigProvider::class,
-    \MySchema\Application\ConfigProvider::class,
-    \MySchema\Admin\ConfigProvider::class,
+    \MySchema\Action\ConfigProvider::class,
     \MySchema\Database\ConfigProvider::class,
-    \MySchema\Page\ConfigProvider::class,
+    \MySchema\Platform\ConfigProvider::class,
+    \MySchema\Resource\ConfigProvider::class,
+    \MySchema\Content\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
 

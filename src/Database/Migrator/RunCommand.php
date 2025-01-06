@@ -7,6 +7,7 @@ namespace MySchema\Database\Migrator;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -21,38 +22,75 @@ final class RunCommand extends Command
         parent::__construct($this->name);
     }
 
+    public function configure(): void
+    {
+        $this->addOption('database', 'd', InputOption::VALUE_OPTIONAL, 'The database to perform migrations', 'main');
+        $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'The name of the migration i.e it\'s config key');
+        $this->setDescription('Execute one or more pending migrations');
+    }
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        // check migration table existence
-        $connection = $this->getDatabaseConnection();
-        if (! $connection->createSchemaManager()->tableExists('migration')) {
-            if (! $this->setupMigrations()) {
-                $io->error('Error setting up migrations');
-                return Command::FAILURE;
-            }
+        // get details
+        $database = $input->getOption('database');
+        $name = $input->getOption('name') ?? '';
+        $config = $this->container->get('config')['migrations'];
+        if (! isset($config[$database])) {
+            $io->error(\sprintf("Database %s not found in migrations config", $database));
+            return Command::FAILURE;
+        }
 
-            // migrations newly setup
-            $io->info("Use command `migration:status` to check pending migrations");
-            return Command::SUCCESS;
+        if (! isset($config[$database][$name])) {
+            $io->error(\sprintf(
+                "Migration %s not found in config for database %s migrations",
+                $name, $database
+            ));
+            return Command::FAILURE;
+        }
+
+        $migration = $config[$database][$name];
+        if (! isset($migration['up']) || ! isset($migration['down'])) {
+            $io->error(\sprintf(
+                "Ensure migration %s on database %s has both up and down keys configured",
+                $name, $database
+            ));
+            return Command::FAILURE;
+        }
+
+        $upFile = \getcwd() . $migration['up'];
+        $downFile = \getcwd() . $migration['down'];
+        if (! \file_exists($upFile)) {
+            $io->error(\sprintf(
+                "Migration up file %s not found",
+                $upFile
+            ));
+            return Command::FAILURE;
+        }
+        if (! \file_exists($downFile)) {
+            $io->error(\sprintf(
+                "Migration down file %s not found",
+                $downFile
+            ));
+            return Command::FAILURE;
         }
 
         // execute queries
-        $migrations = $this->generateMigrations();
-        $queries = $this->getMigrationSql($migrations);
-        foreach ($queries as $database => $databaseQueries) {
-            $dbConnection = $this->getDatabaseConnection($database);
-            // @todo use a transaction
-            foreach ($databaseQueries as $query) {
-                $dbConnection->executeStatement($query);
+        $connection = $this->getDatabaseConnection($database);
+        $contents = \file_get_contents($upFile);
+        foreach (\explode(';', $contents) as $sql) {
+            if (\strlen($sql) === 0) {
+                continue;
             }
-        }
-        return Command::SUCCESS;
-    }
 
-    public function configure(): void
-    {
-        $this->setDescription('Generate database schema migrations');
+            $connection->write($sql);
+        }
+
+        $io->success(sprintf(
+            "Migration %s on database %s successfully run",
+            $name, $database
+        ));
+        return Command::SUCCESS;
     }
 }

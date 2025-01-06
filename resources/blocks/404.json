@@ -1,0 +1,22 @@
+{
+    "elements": [
+        {
+            "tag": "h1",
+            "value": "404",
+            "attributes": {
+                "style": {
+                    "color": "red"
+                }
+            }
+        },
+        {
+            "tag": "p",
+            "value": "The page you requested was not found",
+            "attributes": {
+                "style": {
+                    "color": "purple"
+                }
+            }
+        }
+    ]
+}

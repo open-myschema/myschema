@@ -10,9 +10,8 @@ class ConfigProvider
     {
         return [
             'console' => $this->getConsoleCommands(),
-            'database' => $this->getDatabaseConfig(),
             'dependencies' => $this->getDependencies(),
-            'schema' => $this->getSchemaConfig(),
+            'migrations' => $this->getMigrations(),
         ];
     }
 
@@ -22,21 +21,8 @@ class ConfigProvider
             'commands' => [
                 Migrator\RollBackCommand::class,
                 Migrator\RunCommand::class,
+                Migrator\SetupCommand::class,
                 Migrator\StatusCommand::class,
-            ],
-        ];
-    }
-
-    private function getDatabaseConfig(): array
-    {
-        return [
-            'main' => [
-                'driver' => 'pdo_sqlite',
-                'driverOptions' => [
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                ],
-                'memory' => TRUE,
             ],
         ];
     }
@@ -45,47 +31,21 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                Migrator\RollBackCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
-                Migrator\RunCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
-                Migrator\StatusCommand::class => \MySchema\Application\ConsoleCommandFactory::class,
+                Migrator\RollBackCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\RunCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\SetupCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\StatusCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
             ],
         ];
     }
 
-    private function getSchemaConfig(): array
+    private function getMigrations(): array
     {
         return [
             'main' => [
-                'migration' => [
-                    'columns' => [
-                        'id' => [
-                            'type' => 'bigint',
-                            'unsigned' => TRUE,
-                            'autoIncrement' => TRUE,
-                        ],
-                        'name' => [
-                            'type' => 'string',
-                        ],
-                        'definitions' => [
-                            'type' => 'json',
-                        ],
-                        'status' => [
-                            'type' => 'smallint',
-                            'default' => 0,
-                        ],
-                        'created_at' => [
-                            'type' => 'datetimetz',
-                        ],
-                        'executed_at' => [
-                            'type' => 'datetimetz',
-                            'notnull' => FALSE,
-                        ],
-                    ],
-                    'indexes' => [
-                        'migration_status' => [
-                            'column' => ['status'],
-                        ],
-                    ],
+                'initial' => [
+                    'up' => '/resources/migrations/initial/up.sql',
+                    'down' => '/resources/migrations/initial/down.sql',
                 ],
             ],
         ];

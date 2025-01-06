@@ -6,7 +6,7 @@ namespace MySchema\Server\Action;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\Diactoros\ResponseFactory;
-use MySchema\Application\Action;
+use MySchema\Action\Action;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,11 +32,6 @@ class HttpRequestAction extends Action implements StoppableEventInterface
     public function isPropagationStopped(): bool
     {
         return isset($this->response);
-    }
-
-    public function isValid(): bool
-    {
-        return true;
     }
 
     public function setResponse(ResponseInterface $response): void

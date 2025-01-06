@@ -21,36 +21,48 @@ final class StatusCommand extends Command
         parent::__construct($this->name);
     }
 
+    public function configure(): void
+    {
+        $this->setDescription('View the status of database schema migrations');
+    }
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        // check migration table existence
-        $connection = $this->getDatabaseConnection();
-        if (! $connection->createSchemaManager()->tableExists('migration')) {
-            if (! $this->setupMigrations()) {
-                $io->error('Error setting up migrations');
-                return Command::FAILURE;
-            }
+        $query = "SELECT database, name, description, status, executed_at FROM migration";
+        $data = $this->getDatabaseConnection()->read($query);
+        $reshapedData = [];
+        foreach ($data as $row) {
+            $reshapedData[$row['database'] . '-' . $row['name']] = $row;
         }
 
-        // get changes in schema between existing databases and code defined models
-        $migrations = $this->generateMigrations();
-        $queries = $this->getMigrationSql($migrations);
         $rows = [];
-        foreach ($queries as $database => $databaseQueries) {
-            foreach ($databaseQueries as $query) {
-                $rows[] = [$database, $query];
+        $config = $this->container->get('config')['migrations'];
+        foreach ($config as $database => $migrations) {
+            foreach (\array_keys($migrations) as $migration) {
+                $key = "$database-$migration";
+                if ($key === "main-initial") {
+                    continue;
+                }
+
+                $rows[] = [
+                    'database' => $database,
+                    'migration' => $migration,
+                    'description' => $migrations[$migration]['description'] ?? '',
+                    'status' => \array_key_exists($key, $reshapedData) && $reshapedData[$key]['status'] == 1
+                        ? 'Done'
+                        : 'Pending',
+                    'executed' => \array_key_exists($key, $reshapedData) && $reshapedData[$key]['executed_at'] !== NULL
+                        ? $reshapedData[$key]['executed_at']
+                        : '',
+                ];
             }
         }
-        $io->table(['Database', 'Pending Migrations'], $rows);
-        $io->text("Use command `migration:run` to execute these migrations");
+        
+        // display status table
+        $io->table(['Database', 'Migration', 'Description', 'Status', 'Executed'], $rows);
 
         return Command::SUCCESS;
-    }
-
-    public function configure(): void
-    {
-        $this->setDescription('View the status of database schema migrations');
     }
 }

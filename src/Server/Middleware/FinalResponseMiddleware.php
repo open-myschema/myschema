@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace MySchema\Server\Middleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Laminas\Diactoros\Response\HtmlResponse;
+use MySchema\Application\ActionResult;
+use MySchema\Platform\PlatformInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -15,6 +16,12 @@ class FinalResponseMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return new HtmlResponse("Page not found", StatusCodeInterface::STATUS_NOT_FOUND);
+        $platform = $request->getAttribute(PlatformInterface::class);
+        assert($platform instanceof PlatformInterface);
+
+        return $platform->formatResponse(
+            $request,
+            new ActionResult(null, StatusCodeInterface::STATUS_NOT_FOUND)
+        );
     }
 }

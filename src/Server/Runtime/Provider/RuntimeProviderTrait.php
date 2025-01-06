@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MySchema\Server\Runtime\Provider;
 
 use Mezzio\Router\RouteCollectorInterface;
-use MySchema\Application\ActionMiddleware;
+use MySchema\Action\ActionMiddleware;
 use MySchema\Server\Middleware\LazyLoadingMiddleware;
 use Psr\Container\ContainerInterface;
 
