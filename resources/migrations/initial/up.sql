@@ -5,6 +5,6 @@ CREATE TABLE migration (
     name VARCHAR(255) NOT NULL,
     description VARCHAR,
     status SMALLINT NOT NULL DEFAULT 0,
-    executed_at TIMESTAMP WITH TIME ZONE
+    executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX migration_status ON migration (status);

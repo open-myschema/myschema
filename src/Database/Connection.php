@@ -10,11 +10,26 @@ class Connection
     {
     }
 
+    public function beginTransaction(): bool
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function commit(): bool
+    {
+        return $this->pdo->commit();
+    }
+
     public function read(string $query, array $params = []): array
     {
         $stmt = $this->prepareStatement($query, $params);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function rollback(): bool
+    {
+        return $this->pdo->rollBack();
     }
 
     public function write(string $query, array $params = []): bool

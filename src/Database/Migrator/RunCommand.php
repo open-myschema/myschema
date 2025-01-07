@@ -79,13 +79,31 @@ final class RunCommand extends Command
         // execute queries
         $connection = $this->getDatabaseConnection($database);
         $contents = \file_get_contents($upFile);
-        foreach (\explode(';', $contents) as $sql) {
-            if (\strlen($sql) === 0) {
-                continue;
+        $connection->beginTransaction();
+        try {
+            foreach (\explode(';', $contents) as $sql) {
+                if (\strlen($sql) === 0) {
+                    continue;
+                }
+    
+                $connection->write($sql);
             }
-
-            $connection->write($sql);
+            $connection->commit();
+        } catch (\Throwable $e) {
+            $io->error($e->getMessage());
+            $connection->rollback();
+            return Command::FAILURE;
         }
+
+        // update migration table
+        $insertMigration = "INSERT INTO migration (database, name, description, status)
+            VALUES(:database, :name, :description, :status)";
+        $connection->write($insertMigration, [
+            'database' => $database,
+            'name' => $name,
+            'description' => $migration['description'] ?? '',
+            'status' => 1
+        ]);
 
         $io->success(sprintf(
             "Migration %s on database %s successfully run",
