@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace MySchema\Action;
 
-use Laminas\InputFilter\InputFilter;
-use Laminas\InputFilter\InputFilterInterface;
 use Psr\Container\ContainerInterface;
 
 abstract class Action
 {
-    protected InputFilterInterface $inputFilter;
     protected array $params = [];
 
     public function __invoke(ContainerInterface $container): ActionResult
@@ -19,15 +16,6 @@ abstract class Action
             "Action %s is not invokable",
             static::class
         ));
-    }
-
-    public function getInputFilter(): InputFilterInterface
-    {
-        if (! isset($this->inputFilter)) {
-            $this->inputFilter = new InputFilter;
-        }
-
-        return $this->inputFilter;
     }
 
     public function getParam(string $param, mixed $default = NULL): mixed

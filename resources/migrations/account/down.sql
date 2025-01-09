@@ -1,4 +1,2 @@
-DROP INDEX IF EXISTS account_phone;
-DROP INDEX IF EXISTS account_email;
-DROP TABLE IF EXISTS account_meta;
-DROP TABLE IF EXISTS account;
+DROP TABLE IF EXISTS account_meta CASCADE;
+DROP TABLE IF EXISTS account CASCADE;

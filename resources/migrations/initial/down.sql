@@ -1,2 +1,1 @@
-DROP INDEX migration_status;
-DROP TABLE migration;
+DROP TABLE IF EXISTS migration;

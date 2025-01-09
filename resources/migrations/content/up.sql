@@ -1,85 +1,77 @@
 -- tables
-CREATE TABLE content_tag (
-    id BIGSERIAL NOT NULL PRIMARY KEY,
-    name VARCHAR NOT NULL,
-    link_target VARCHAR NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE content_type (
-    id BIGSERIAL NOT NULL PRIMARY KEY,
-    name VARCHAR NOT NULL,
-    description VARCHAR,
-    identifier VARCHAR NOT NULL,
-    link_target VARCHAR NOT NULL,
-    properties JSONB,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE content_item (
+CREATE TABLE content (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     name VARCHAR,
     image VARCHAR,
     description VARCHAR,
+    identifier VARCHAR,
     url VARCHAR,
     owner BIGINT NOT NULL,
-    status SMALLINT NOT NULL DEFAULT 0,
-    attributes JSONB,
+    visibility SMALLINT NOT NULL DEFAULT 0,
+    props JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT content_item_owner_fk FOREIGN KEY (owner)
+    CONSTRAINT content_owner_fk FOREIGN KEY (owner)
         REFERENCES account (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
-CREATE TABLE content_item_meta (
-    id BIGSERIAL NOT NULL,
-    content_item_id BIGINT NOT NULL,
+CREATE TABLE content_meta (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    content_id BIGINT NOT NULL,
     description VARCHAR,
-    status VARCHAR,
+    status SMALLINT,
     agent BIGINT,
     data JSONB,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id, content_item_id),
-    CONSTRAINT content_item_meta_content_item_id_fk FOREIGN KEY (content_item_id)
-        REFERENCES content_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    executed_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT content_meta_content_id_fk FOREIGN KEY (content_id)
+        REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT content_meta_agent_fk FOREIGN KEY (agent)
         REFERENCES account (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
-CREATE TABLE content_item_tag (
-    id BIGSERIAL NOT NULL,
-    content_item_id BIGINT NOT NULL,
-    tag_id BIGINT NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id, content_item_id, tag_id),
-    CONSTRAINT content_item_tag_content_item_id_fk FOREIGN KEY (content_item_id)
-        REFERENCES content_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT content_item_tag_tag_id_fk FOREIGN KEY (tag_id)
-        REFERENCES content_tag (id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-CREATE TABLE content_item_type (
-    id BIGSERIAL NOT NULL,
-    content_item_id BIGINT NOT NULL,
-    content_type_id BIGINT NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id, content_item_id, content_type_id),
-    CONSTRAINT content_item_type_content_item_id_fk FOREIGN KEY (content_item_id)
-        REFERENCES content_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT content_item_type_content_type_id_fk FOREIGN KEY (content_type_id)
-        REFERENCES content_type (id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-CREATE TABLE content_item_permission (
-    id BIGSERIAL NOT NULL,
-    content_item_id BIGINT NOT NULL,
+CREATE TABLE content_permission (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    content_id BIGINT NOT NULL,
     account_id BIGINT NOT NULL,
     permission VARCHAR NOT NULL,
     is_granted BOOLEAN NOT NULL,
-    PRIMARY KEY (id, content_item_id, account_id),
-    CONSTRAINT content_item_permission_content_item_id_fk FOREIGN KEY (content_item_id)
-        REFERENCES content_item (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT content_item_permission_account_id_fk FOREIGN KEY (account_id)
+    CONSTRAINT content_permission_content_id_fk FOREIGN KEY (content_id)
+        REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT content_permission_account_id_fk FOREIGN KEY (account_id)
         REFERENCES account (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE content_tag (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    content_id BIGINT NOT NULL,
+    name VARCHAR NOT NULL,
+    CONSTRAINT content_tag_content_id_fk FOREIGN KEY (content_id)
+        REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE content_type (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    content_id BIGINT NOT NULL,
+    name VARCHAR NOT NULL,
+    CONSTRAINT content_type_content_id_fk FOREIGN KEY (content_id)
+        REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- indexes
-CREATE INDEX content_tag_link_target ON content_tag (link_target);
-CREATE INDEX content_type_link_target ON content_type (link_target);
-CREATE INDEX content_item_url ON content_item (url);
-CREATE INDEX content_item_owner ON content_item (owner);
-CREATE INDEX content_item_status ON content_item (status);
+-- content
+CREATE INDEX content_identifier ON content (identifier);
+CREATE INDEX content_url ON content (url);
+CREATE INDEX content_owner ON content (owner);
+CREATE INDEX content_visibility ON content (visibility);
+
+-- content meta
+CREATE INDEX content_meta_content_id ON content_meta (content_id);
+CREATE INDEX content_meta_status ON content_meta (status);
+CREATE INDEX content_meta_agent ON content_meta (agent);
+
+-- content permission
+CREATE INDEX content_permission_content_id ON content_permission (content_id);
+CREATE INDEX content_permission_account_id ON content_permission (account_id);
+
+-- content tag
+CREATE INDEX content_tag_content_id ON content_tag (content_id);
+CREATE INDEX content_tag_name ON content_tag (name);
+
+-- content type
+CREATE INDEX content_type_content_id ON content_type (content_id);
+CREATE INDEX content_type_name ON content_type (name);

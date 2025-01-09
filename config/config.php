@@ -9,6 +9,8 @@ use Laminas\ConfigAggregator\PhpFileProvider;
 
 $config = new ConfigAggregator([
     \Laminas\Diactoros\ConfigProvider::class,
+    \Laminas\InputFilter\ConfigProvider::class,
+    \Laminas\Validator\ConfigProvider::class,
     \Mezzio\Router\ConfigProvider::class,
     \MySchema\Server\ConfigProvider::class,
     \MySchema\Action\ConfigProvider::class,

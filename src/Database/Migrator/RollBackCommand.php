@@ -79,6 +79,12 @@ final class RollBackCommand extends Command
             $connection->write($sql);
         }
 
+        // remove migration from database
+        $deleteSql = "DELETE FROM migration WHERE name = :name";
+        $connection->write($deleteSql, [
+            'name' => $name
+        ]);
+
         $io->success(sprintf(
             "Migration %s on database %s successfully rolled back",
             $name, $database

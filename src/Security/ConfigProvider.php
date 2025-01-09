@@ -16,7 +16,12 @@ class ConfigProvider
 
     private function getDependencies(): array
     {
-        return [];
+        return [
+            'factories' => [
+                \Laminas\InputFilter\InputFilterPluginManager::class => InputFilter\InputFilterPluginManagerFactory::class,
+                \Laminas\Validator\ValidatorPluginManager::class => Validator\ValidatorPluginManagerFactory::class,
+            ],
+        ];
     }
 
     private function getMigrations(): array
