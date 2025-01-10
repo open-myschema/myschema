@@ -39,11 +39,13 @@ class ConfigProvider
         return [
             'blocks' => [
                 'content::error-404' => '/resources/blocks/404.json',
+                'main::content-dashboard' => '/resources/blocks/dashboard.json',
             ],
             'forms' => [],
             'queries' => [],
             'templates' => [
                 'content::error-404' => '/resources/templates/error/404.json',
+                'main::content-dashboard' => '/resources/templates/dashboard.json',
             ],
             'translations' => [],
         ];
@@ -56,7 +58,8 @@ class ConfigProvider
                 'methods' => ['GET', 'POST'],
                 'name' => 'content::dashboard',
                 'options' => [
-                    'template' => 'content::dashboard'
+                    'action' => Action\DisplayDashboardAction::class,
+                    'template' => 'main::content-dashboard'
                 ],
             ],
         ];

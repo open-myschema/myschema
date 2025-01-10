@@ -1,0 +1,22 @@
+{
+    "elements": [
+        {
+            "tag": "h1",
+            "value": "Dashboard",
+            "attributes": {
+                "style": {
+                    "color": "red"
+                }
+            }
+        },
+        {
+            "tag": "p",
+            "value": "The content dashboard",
+            "attributes": {
+                "style": {
+                    "color": "purple"
+                }
+            }
+        }
+    ]
+}

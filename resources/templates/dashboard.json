@@ -1,0 +1,6 @@
+{
+    "title": "Dashboard - MySchema",
+    "blocks": [
+        "main::content-dashboard"
+    ]
+}
