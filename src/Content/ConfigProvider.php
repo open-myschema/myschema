@@ -25,11 +25,11 @@ class ConfigProvider
     {
         return [
             'main' => [
-                'content_types' => [
-                    'description' => 'Create content types',
-                    'up' => '/resources/migrations/contenttypes/up.sql',
-                    'down' => '/resources/migrations/contenttypes/down.sql',
-                ]
+                'content' => [
+                    'description' => 'Create content tables',
+                    'up' => '/resources/migrations/content/up.sql',
+                    'down' => '/resources/migrations/content/down.sql',
+                ],
             ],
         ];
     }

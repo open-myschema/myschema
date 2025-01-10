@@ -9,16 +9,34 @@ use Psr\Container\ContainerInterface;
 final class ConnectionFactory
 {
     private Connection $connection;
+    private array $databases = [];
 
     public function __construct(private ContainerInterface $container)
     {
+        $this->databases['main'] = $container->get('config')['database']['main'];
+        $apps = $container->get('apps');
+        foreach ($apps as $app) {
+            if (! isset($app['database'])) {
+                continue;
+            }
+
+            foreach ($app['database'] as $name => $config) {
+                if (\array_key_exists($name, $this->databases)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        "Duplicate database key %s",
+                        $name
+                    ));
+                }
+
+                $this->databases[$name] = $config;
+            }
+        }
     }
 
     public function connect(string $connection = 'main'): Connection
     {
         if (! isset($this->connection)) {
-            $configs = $this->container->get('config')['database'];
-            if (! isset($configs[$connection])) {
+            if (! isset($this->databases[$connection])) {
                 throw new \InvalidArgumentException(\sprintf(
                     "Database connection %s not found in config",
                     $connection
@@ -26,7 +44,7 @@ final class ConnectionFactory
             }
 
             // build the dsn
-            $config = $configs[$connection];
+            $config = $this->databases[$connection];
             $host = $config['host'] ?? 'localhost';
             $port = $config['port'] ?? 5432;
             $dbname = $config['dbname'] ?? 'myschema';
