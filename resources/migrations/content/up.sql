@@ -27,51 +27,47 @@ CREATE TABLE content_meta (
         REFERENCES account (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE content_permission (
-    id BIGSERIAL NOT NULL PRIMARY KEY,
+    id BIGSERIAL NOT NULL,
     content_id BIGINT NOT NULL,
     account_id BIGINT NOT NULL,
-    permission VARCHAR NOT NULL,
-    is_granted BOOLEAN NOT NULL,
+    permissions JSONB NOT NULL,
+    PRIMARY KEY (id, content_id, account_id),
     CONSTRAINT content_permission_content_id_fk FOREIGN KEY (content_id)
         REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT content_permission_account_id_fk FOREIGN KEY (account_id)
         REFERENCES account (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE content_tag (
-    id BIGSERIAL NOT NULL PRIMARY KEY,
+    id BIGSERIAL NOT NULL,
     content_id BIGINT NOT NULL,
-    name VARCHAR NOT NULL,
+    data JSONB NOT NULL,
+    PRIMARY KEY (id, content_id),
     CONSTRAINT content_tag_content_id_fk FOREIGN KEY (content_id)
         REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE content_type (
-    id BIGSERIAL NOT NULL PRIMARY KEY,
+    id BIGSERIAL NOT NULL,
     content_id BIGINT NOT NULL,
-    name VARCHAR NOT NULL,
+    data JSONB NOT NULL,
+    PRIMARY KEY (id, content_id),
     CONSTRAINT content_type_content_id_fk FOREIGN KEY (content_id)
         REFERENCES content (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- indexes
 -- content
-CREATE INDEX content_identifier ON content (identifier);
-CREATE INDEX content_url ON content (url);
-CREATE INDEX content_owner ON content (owner);
-CREATE INDEX content_visibility ON content (visibility);
+CREATE INDEX content_composite ON content (identifier, owner, visibility, url);
+CREATE INDEX content_props ON content USING GIN (props);
 
 -- content meta
-CREATE INDEX content_meta_content_id ON content_meta (content_id);
-CREATE INDEX content_meta_status ON content_meta (status);
-CREATE INDEX content_meta_agent ON content_meta (agent);
+CREATE INDEX content_meta_composite ON content_meta (content_id, status, agent);
+CREATE INDEX content_meta_data ON content_meta USING GIN (data);
 
 -- content permission
-CREATE INDEX content_permission_content_id ON content_permission (content_id);
-CREATE INDEX content_permission_account_id ON content_permission (account_id);
+CREATE INDEX content_permission_permissions ON content_permission USING GIN (permissions);
 
 -- content tag
-CREATE INDEX content_tag_content_id ON content_tag (content_id);
-CREATE INDEX content_tag_name ON content_tag (name);
+CREATE INDEX content_tag_data ON content_tag USING GIN (data);
 
 -- content type
-CREATE INDEX content_type_content_id ON content_type (content_id);
-CREATE INDEX content_type_name ON content_type (name);
+CREATE INDEX content_type_data ON content_type USING GIN (data);

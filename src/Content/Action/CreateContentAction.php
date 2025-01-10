@@ -66,11 +66,11 @@ class CreateContentAction extends Action
             VALUES(:description, :identifier, :image, :name, :owner, :props, :url, :visibility)";
 
         $contentMetaQuery = "INSERT INTO content_meta
-            (content_id, status, description, agent, data)
-            VALUES(:content_id, :status, :description, :agent, :data)";
+            (content_id, status, agent, data)
+            VALUES(:content_id, :status, :agent, :data)";
 
-        $contentTagQuery = "INSERT INTO content_tag (content_id, name) VALUES(:content_id, :name)";
-        $contentTypeQuery = "INSERT INTO content_type (content_id, name) VALUES(:content_id, :name)";
+        $contentTagQuery = "INSERT INTO content_tag (content_id, data) VALUES(:content_id, :data)";
+        $contentTypeQuery = "INSERT INTO content_type (content_id, data) VALUES(:content_id, :data)";
 
         // prepare values
         $values = $inputFilter->getValues();
@@ -93,26 +93,21 @@ class CreateContentAction extends Action
             $connection->insert($contentMetaQuery, [
                 'content_id' => $contentId,
                 'status' => ContentMetaStatusInterface::STATUS_CONTENT_CREATED,
-                'description' => null,
                 'agent' => $inputFilter->getValue('owner'),
                 'data' => \json_encode($inputFilter->getValues()),
             ]);
 
             // tags
-            foreach ($tags as $tag) {
-                $connection->insert($contentTagQuery, [
-                    'content_id' => $contentId,
-                    'name' => $tag
-                ]);
-            }
+            $connection->insert($contentTagQuery, [
+                'content_id' => $contentId,
+                'data' => \json_encode($tags),
+            ]);
 
             // types
-            foreach ($types as $type) {
-                $connection->insert($contentTypeQuery, [
-                    'content_id' => $contentId,
-                    'name' => $type
-                ]);
-            }
+            $connection->insert($contentTypeQuery, [
+                'content_id' => $contentId,
+                'data' => \json_encode($types),
+            ]);
 
             $connection->commit();
         } catch (\Throwable $e) {
@@ -139,8 +134,11 @@ class CreateContentAction extends Action
     private function composeInputFilter(ContainerInterface $container, array $additionalInputFilters): InputFilter
     {
         $inputFilter = new ContentInputFilter();
-        $inputFilterManager = $this->getInputFilterManager($container);
+        if (empty($additionalInputFilter)) {
+            return $inputFilter;
+        }
 
+        $inputFilterManager = $this->getInputFilterManager($container);
         foreach ($additionalInputFilters as $inputFilterName) {
             $additionalInputFilter = $inputFilterManager->get($inputFilterName);
             if (! assert($additionalInputFilter instanceof InputFilter)) {

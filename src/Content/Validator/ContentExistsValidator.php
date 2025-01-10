@@ -15,11 +15,10 @@ class ContentExistsValidator
     public function exists(string $identifier, array $args = []): bool
     {
         // $sql = "SELECT ";
-        $query = "SELECT c.props, JSON_AGG(ct.name) AS types
+        $query = "SELECT c.id, c.props, ct.data AS types
             FROM content c
             INNER JOIN content_type ct ON c.id = ct.content_id
-            WHERE c.identifier = :identifier
-            GROUP BY c.props";
+            WHERE c.identifier = :identifier";
         $result = $this->connection->fetchAll($query, [
             'identifier' => $identifier,
         ]);
@@ -30,36 +29,44 @@ class ContentExistsValidator
 
         foreach ($result as $row) {
             if (empty($args)) {
-                return true;
+                return true; // needed to match the identifier only
             }
 
-            $props = \json_decode($row['props'], true);
             $types = \json_decode($row['types'], true);
-            foreach ($args as $k => $v) {
-                if ($k === 'props') {
-                    foreach ($v as $prop => $checks) {
-                        foreach ($checks as $propName => $propValue) {
-                            if (! is_string($propValue)) {
-                                continue; // @todo
-                            }
-
-                            if (! \array_key_exists($prop, $props)) {
-                                continue;
-                            }
-
-                            if (isset($props[$prop][$propName])) {
-                                return true;
-                            }
-                        }
-                    }
+            foreach ($args as $type => $typeProps) {
+                // filter for similar types
+                if (! \in_array($type, $types)) {
+                    continue;
                 }
 
-                if ($k === 'types') {
-                    foreach ($v as $type) {
-                        if (\in_array($type, $types)) {
-                            return true;
-                        }
-                    }
+                // get props for content item
+                $props = \json_decode($row['props'], true);
+                return $this->propExists($typeProps['props'] ?? [], $props);
+            }
+        }
+
+        return false;
+    }
+
+    private function propExists($searchProps, $existingProps): bool
+    {
+        foreach ($searchProps as $prop => $propData) {
+            if (! isset($existingProps[$prop])) {
+                continue;
+            }
+
+            foreach ($propData as $propKey => $propValue) {
+                if (! isset($existingProps[$prop][$propKey])) {
+                    continue;
+                }
+
+                // recursively search props
+                if ($propKey === 'props') {
+                    return $this->propExists($propValue, $existingProps[$prop][$propKey]);
+                }
+
+                if ($existingProps[$prop][$propKey] == $propValue) {
+                    return true;
                 }
             }
         }

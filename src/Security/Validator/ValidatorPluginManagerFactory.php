@@ -14,24 +14,23 @@ final class ValidatorPluginManagerFactory
     {
         $pluginManager = new ValidatorPluginManager($container, $options ?? []);
 
-        // $config = $container->get('config')['validators'] ?? [];
-        // // $apps = $container->get('apps');
-        // // foreach ($apps as $app) {
-        // //     if (! isset($app['validators'])) {
-        // //         continue;
-        // //     }
+        $config = $container->get('config')['validators'] ?? [];
+        $apps = $container->get('apps');
+        foreach ($apps as $app) {
+            if (! isset($app['validators'])) {
+                continue;
+            }
 
-        // //     $config = \array_merge($config, $app['validators']);
-        // // }
-        // var_dump($config);
+            $config = \array_merge($config, $app['validators']);
+        }
 
-        // // If we do not have validators configuration, nothing more to do
-        // if (empty($config)) {
-        //     return $pluginManager;
-        // }
+        // If we do not have validators configuration, nothing more to do
+        if (empty($config)) {
+            return $pluginManager;
+        }
 
-        // // Wire service configuration for validators
-        // (new Config($config))->configureServiceManager($pluginManager);
+        // Wire service configuration for validators
+        (new Config($config))->configureServiceManager($pluginManager);
 
         return $pluginManager;
     }
