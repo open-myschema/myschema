@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace MySchema\Content\Repository;
 
+use MySchema\Content\Model\Content;
 use MySchema\Database\Connection;
+use function array_map;
+use function implode;
+use function is_array;
+use function json_decode;
+use function substr;
 
 class ContentRepository
 {
+    private array $created;
     private array $fields;
     private array $groupBy;
+    private string $hydrator;
     private string $identifier;
     private int $limit;
+    private int $offset;
     private array $orderBy;
     private array $props;
     private array $types;
@@ -20,42 +29,48 @@ class ContentRepository
     {
     }
 
-    public function fetch(int $mode = \PDO::FETCH_ASSOC): mixed
+    public function created(array $created): static
     {
-        $fields = $this->getQueryFields();
-        $from = $this->getQueryFrom();
-        $where = $this->getQueryWhere();
-        $orderBy = $this->getQueryOrderBy();
-        $limit = $this->getQueryLimit();
-        
-        $query = "SELECT $fields FROM $from $where $orderBy $limit";
-        $result = $this->connection->fetch($query, $this->getQueryParams());
+        $this->created = $created;
+        return $this;
+    }
+
+    public function fetch(): mixed
+    {        
+        $query = $this->getSelectQuery();
+        $result = $this->connection->fetch($query, $this->getSelectParams());
         if (! is_array($result)) {
             return $result;
         }
 
-        $result['tags'] = \json_decode($result['tags'], true);
-        isset($result['props']) && $result['props'] = \json_decode($result['props'], true);
-        isset($result['types']) && $result['types'] = \json_decode($result['types'], true);
+        $result['tags'] = json_decode($result['tags'], true);
+        isset($result['props']) && $result['props'] = json_decode($result['props'], true);
+        isset($result['types']) && $result['types'] = json_decode($result['types'], true);
         return $result;
     }
 
-    public function fetchAll(int $mode = \PDO::FETCH_ASSOC): mixed
+    public function fetchAll(): array
     {
-        $fields = $this->getQueryFields();
-        $from = $this->getQueryFrom();
-        $where = $this->getQueryWhere();
-        $orderBy = $this->getQueryOrderBy();
-        $limit = $this->getQueryLimit();
-        
-        $query = "SELECT $fields FROM $from $where $orderBy $limit";
-        $result = $this->connection->fetchAll($query, $this->getQueryParams());
-        return \array_map(function($row): array {
-            $row['tags'] = \json_decode($row['tags'], true);
-            isset($row['props']) && $row['props'] = \json_decode($row['props'], true);
-            isset($row['types']) && $row['types'] = \json_decode($row['types'], true);
+        $query = $this->getSelectQuery();
+        $result = $this->connection->fetchAll($query, $this->getSelectParams());
+        $processedResult = array_map(function($row): array {
+            $row['tags'] = json_decode($row['tags'], true);
+            isset($row['props']) && $row['props'] = json_decode($row['props'], true);
+            isset($row['types']) && $row['types'] = json_decode($row['types'], true);
             return $row;
         }, $result);
+        if (! isset($this->hydrator)) {
+            return $processedResult;
+        }
+
+        $hydrated = [];
+        foreach ($processedResult as $row) {
+            $object = new $this->hydrator;
+            assert($object instanceof Content);
+
+            $hydrated[] = $object->hydrate($row);
+        }
+        return $hydrated;
     }
 
     public function fields(array $fields): static
@@ -67,6 +82,12 @@ class ContentRepository
     public function groupBy(array $groupBy): static
     {
         $this->groupBy = $groupBy;
+        return $this;
+    }
+
+    public function hydrate(string $hydrator): static
+    {
+        $this->hydrator = $hydrator;
         return $this;
     }
 
@@ -82,15 +103,15 @@ class ContentRepository
         return $this;
     }
 
-    public function orderBy(array $orderBy): static
+    public function offset(int $offset): static
     {
-        $this->orderBy = $orderBy;
+        $this->offset = $offset;
         return $this;
     }
 
-    public function prop(string $key, mixed $value): static
+    public function orderBy(array $orderBy): static
     {
-        $this->props[$key] = $value;
+        $this->orderBy = $orderBy;
         return $this;
     }
 
@@ -109,10 +130,10 @@ class ContentRepository
         return $this;
     }
 
-    private function getQueryFields(): string
+    private function getSelectFields(): string
     {
         $fields = isset($this->fields)
-            ? \substr(\implode(', ', $this->fields), 0, -1)
+            ? substr(implode(', ', $this->fields), 0, -1)
             : 'c.*';
         if (isset($this->types)) {
             $fields .= ", ct.data AS types";
@@ -121,7 +142,7 @@ class ContentRepository
         return $fields;
     }
 
-    private function getQueryFrom(): string
+    private function getSelectFrom(): string
     {
         $from = "content c";
         if (isset($this->types)) {
@@ -132,7 +153,7 @@ class ContentRepository
         return $from;
     }
 
-    private function getQueryLimit(): string
+    private function getSelectLimit(): string
     {
         $limit = "";
         if (isset($this->limit)) {
@@ -142,20 +163,20 @@ class ContentRepository
         return $limit;
     }
 
-    private function getQueryOrderBy(): string
+    private function getSelectOrderBy(): string
     {
         $orderBy = "";
-        if (isset($this->orderBy)) {
+        if (isset($this->orderBy) && ! empty($this->orderBy)) {
             $orderBy .= "ORDER BY";
             foreach ($this->orderBy as $col => $direction) {
                 $orderBy .= " $col $direction,";
             }
-            $orderBy = \substr($orderBy, 0, -1);
+            $orderBy = substr($orderBy, 0, -1);
         }
         return $orderBy;
     }
 
-    private function getQueryParams(): array
+    private function getSelectParams(): array
     {
         $params = [];
         if (isset($this->identifier)) {
@@ -163,17 +184,17 @@ class ContentRepository
         }
 
         if (isset($this->types)) {
-            $params['types'] = \implode(', ', $this->types);
+            $params['types'] = implode(', ', $this->types);
         }
 
         if (isset($this->props)) {
-            $params['props'] = \json_encode($this->props);
+            $params['props'] = json_encode($this->props);
         }
 
         return $params;
     }
 
-    private function getQueryWhere(): string
+    private function getSelectWhere(): string
     {
         $where = "";
         if (isset($this->identifier)) {
@@ -193,5 +214,16 @@ class ContentRepository
         }
 
         return $where;
+    }
+
+    private function getSelectQuery(): string
+    {
+        $fields = $this->getSelectFields();
+        $from = $this->getSelectFrom();
+        $where = $this->getSelectWhere();
+        $orderBy = $this->getSelectOrderBy();
+        $limit = $this->getSelectLimit();
+        
+        return "SELECT $fields FROM $from $where $orderBy $limit";
     }
 }

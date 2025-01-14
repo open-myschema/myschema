@@ -40,6 +40,7 @@ class ConfigProvider
             'blocks' => [
                 'content::error-404' => '/resources/blocks/404.json',
                 'main::content-dashboard' => '/resources/blocks/dashboard.json',
+                "main::top-navbar" => '/resources/blocks/navigation/navbar.json',
             ],
             'forms' => [],
             'queries' => [],
@@ -58,7 +59,7 @@ class ConfigProvider
                 'methods' => ['GET', 'POST'],
                 'name' => 'content::dashboard',
                 'options' => [
-                    'action' => Action\DisplayDashboardAction::class,
+                    'action' => \RiverBedDynamics\Action\SimulateStorm::class,
                     'template' => 'main::content-dashboard'
                 ],
             ],

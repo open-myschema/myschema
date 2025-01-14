@@ -15,6 +15,10 @@ use MySchema\Content\Validator\ContentExistsValidator;
 use MySchema\Database\ConnectionFactory;
 use MySchema\Helper\ServiceFactoryTrait;
 use Psr\Container\ContainerInterface;
+use function assert;
+use function intval;
+use function is_bool;
+use function json_encode;
 
 class CreateContentAction extends Action
 {
@@ -48,14 +52,18 @@ class CreateContentAction extends Action
 
         // check if content already exists via type and identifier
         $contentExists = (new ContentExistsValidator($connection))->exists(
-            identifier: $inputFilter->getValue('identifier'),
-            args: $this->getParam('check_exists', [])
+            params: $this->getParam('check_exists', [])
         );
-        if ($contentExists) {
+        if (false !== $contentExists) {
             return new ActionResult(
                 code: StatusCodeInterface::STATUS_CONFLICT,
                 messages: [
-                    "Content already exists"
+                    sprintf(
+                        "Content already exists. Conflicts with %s: %s: %s",
+                        $contentExists['name'],
+                        $contentExists['identifier'],
+                        json_encode($contentExists['props'])
+                    )
                 ]
             );
         }
@@ -74,7 +82,7 @@ class CreateContentAction extends Action
 
         // prepare values
         $values = $inputFilter->getValues();
-        $values['props'] = \json_encode($values['props']);
+        $values['props'] = json_encode($values['props']);
         $tags = $values['tags'];
         $types = $values['types'];
         unset($values['tags']);
@@ -84,29 +92,29 @@ class CreateContentAction extends Action
         $connection->beginTransaction();
         try {
             $result = $connection->insert($contentQuery, $values);
-            if (\is_bool($result)) {
+            if (is_bool($result)) {
                 throw new \Exception("Content not created");
             }
-            $contentId = \intval($result);
+            $contentId = intval($result);
 
             // initial content meta
             $connection->insert($contentMetaQuery, [
                 'content_id' => $contentId,
                 'status' => ContentMetaStatusInterface::STATUS_CONTENT_CREATED,
                 'agent' => $inputFilter->getValue('owner'),
-                'data' => \json_encode($inputFilter->getValues()),
+                'data' => json_encode($inputFilter->getValues()),
             ]);
 
             // tags
             $connection->insert($contentTagQuery, [
                 'content_id' => $contentId,
-                'data' => \json_encode($tags),
+                'data' => json_encode($tags),
             ]);
 
             // types
             $connection->insert($contentTypeQuery, [
                 'content_id' => $contentId,
-                'data' => \json_encode($types),
+                'data' => json_encode($types),
             ]);
 
             $connection->commit();

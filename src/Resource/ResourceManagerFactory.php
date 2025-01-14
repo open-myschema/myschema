@@ -7,6 +7,7 @@ namespace MySchema\Resource;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Container\ContainerInterface;
+use function getcwd;
 
 final class ResourceManagerFactory
 {

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MySchema\Resource;
 
 use League\Flysystem\Filesystem;
+use function array_key_exists;
+use function strpos;
 
 class ResourceManager
 {
@@ -36,7 +38,7 @@ class ResourceManager
         return $parser->parseResource($block);
     }
 
-    public function getQuery(string $queryName): string|bool
+    public function getQuery(string $connectionDriver, string $queryName): string|bool
     {
         $config = $this->resourcesConfig['queries'] ?? [];
         return $this->getResource($queryName, $config);
@@ -57,13 +59,12 @@ class ResourceManager
     private function getResource(string $resourceName, array $config): string|bool
     {
         if (! array_key_exists($resourceName, $config)) return FALSE;
-
         return $this->filesystem->read($config[$resourceName]);
     }
 
     private function getParser(string $resourceName): ResourceParserInterface|bool
     {
-        if (FALSE !== \strpos($resourceName, '.json')) {
+        if (FALSE !== strpos($resourceName, '.json')) {
             return new JsonResourceParser;
         }
 

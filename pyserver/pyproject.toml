@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "myschema/pyserver"
+version = "0.1.0"
+description = "Python server for MySchema"
+authors = ["Collins Pamba <collinspamba@outlook.com>"]
+readme = "README.md"
+packages = [{include = "myschema"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
