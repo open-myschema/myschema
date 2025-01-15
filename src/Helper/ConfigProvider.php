@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\PyServer;
+namespace MySchema\Helper;
 
 class ConfigProvider
 {
@@ -10,7 +10,7 @@ class ConfigProvider
     {
         return [
             'dependencies' => $this->getDependencies(),
-            'pyserver_config' => $this->getPyServerConfig(),
+            'guzzle_client' => $this->getGuzzleClientConfig(),
         ];
     }
 
@@ -18,15 +18,13 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                PyServer::class => PyServerFactory::class,
+                \Psr\Http\Client\ClientInterface::class => HttpClientFactory::class,
             ],
         ];
     }
 
-    private function getPyServerConfig(): array
+    private function getGuzzleClientConfig(): array
     {
-        return [
-            'host' => 'http://localhost:5000',
-        ];
+        return [];
     }
 }

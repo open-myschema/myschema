@@ -20,6 +20,7 @@ $config = new ConfigAggregator([
     \MySchema\Security\ConfigProvider::class,
     \MySchema\Content\ConfigProvider::class,
     \MySchema\PyServer\ConfigProvider::class,
+    \MySchema\Helper\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
 
