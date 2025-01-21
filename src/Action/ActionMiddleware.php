@@ -11,6 +11,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function method_exists;
+use MySchema\Platform\Web\Action\RenderTemplateAction;
 
 class ActionMiddleware implements MiddlewareInterface
 {
@@ -21,17 +23,26 @@ class ActionMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $routeResult = $request->getAttribute(RouteResult::class);
-        assert($routeResult instanceof RouteResult);
-
-        if ($routeResult->isFailure()) {
+        if (! $routeResult instanceof RouteResult || $routeResult->isFailure()) {
             return $handler->handle($request);
         }
 
         // get the action
         $route = $routeResult->getMatchedRoute();
-        $actionClass = $route->getOptions()['action'];
-        $action = new $actionClass;
-        assert($action instanceof Action);
+        $actionClass = $route->getOptions()['action'] ?? RenderTemplateAction::class;
+        try {
+            $action = new $actionClass;
+        } catch (\Throwable) {
+            return $handler->handle($request);
+        }
+
+        if (! $action instanceof Action) {
+            return $handler->handle($request);
+        }
+
+        if (method_exists($action, 'setRequest')) {
+            $action->setRequest($request);
+        }
 
         // execute action
         $action->setParams([
@@ -48,8 +59,10 @@ class ActionMiddleware implements MiddlewareInterface
 
         // return the result
         $platform = $request->getAttribute(PlatformInterface::class);
-        assert($platform instanceof PlatformInterface);
-        
+        if (! $platform instanceof PlatformInterface) {
+            return $handler->handle($request);
+        }
+
         return $platform->formatResponse($request, $result);
     }
 }

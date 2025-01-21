@@ -1,7 +1,0 @@
-{
-    "title": "Dashboard - MySchema",
-    "blocks": [
-        "main::top-navbar",
-        "main::content-dashboard"
-    ]
-}

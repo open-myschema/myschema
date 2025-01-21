@@ -44,7 +44,7 @@ class ActionResult
             return ResponseInterface::class;
         }
 
-        $validReturns = ['int', 'bool', 'string', 'null'];
+        $validReturns = ['array', 'int', 'bool', 'string', 'null'];
         if (! \in_array(\get_debug_type($this->data), $validReturns)) {
             return 'unknown';
         }

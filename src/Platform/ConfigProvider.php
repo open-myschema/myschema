@@ -30,6 +30,8 @@ class ConfigProvider
                 PlatformMiddleware::class => PlatformMiddlewareFactory::class,
                 RestAPI\RestAPIPlatform::class => RestAPI\RestAPIPlatformFactory::class,
                 Web\DomTemplate\DomTemplateRenderer::class => Web\DomTemplate\DomTemplateRendererFactory::class,
+                Web\HtmlTemplate\HtmlTemplateRenderer::class => Web\HtmlTemplate\HtmlTemplateRenderer::class,
+                Web\TemplateRendererInterface::class => Web\HtmlTemplate\HtmlTemplateRendererFactory::class,
                 Web\WebPlatform::class => Web\WebPlatformFactory::class,
             ],
         ];

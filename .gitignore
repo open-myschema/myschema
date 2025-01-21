@@ -1,5 +1,6 @@
-/.vscode/
-/vendor/
+.vscode/
+.settings/
+vendor/
 scripts/
 local.php
 *local.php
@@ -8,3 +9,6 @@ local.php
 __pycache__/
 venv/
 .venv/
+.buildpath
+.project
+.pydevproject

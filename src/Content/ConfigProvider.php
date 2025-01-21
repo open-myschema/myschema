@@ -38,17 +38,15 @@ class ConfigProvider
     {
         return [
             'blocks' => [
-                'content::error-404' => '/resources/blocks/404.json',
-                'main::content-dashboard' => '/resources/blocks/dashboard.json',
-                "main::top-navbar" => '/resources/blocks/navigation/navbar.json',
+                'main::content-dashboard' => '/resources/blocks/dashboard.html',
+                "main::top-navbar" => '/resources/blocks/navigation/navbar.html',
             ],
             'forms' => [],
             'queries' => [],
             'templates' => [
-                'content::error-404' => '/resources/templates/error/404.json',
-                'main::content-dashboard' => '/resources/templates/dashboard.json',
+                'main::error-404' => '/resources/templates/error/404.html',
+                'main::content-dashboard' => '/resources/templates/dashboard.html',
             ],
-            'translations' => [],
         ];
     }
 
@@ -59,7 +57,7 @@ class ConfigProvider
                 'methods' => ['GET', 'POST'],
                 'name' => 'content::dashboard',
                 'options' => [
-                    'action' => \RiverBedDynamics\Action\SimulateStorm::class,
+                    'action' => Action\DisplayDashboardAction::class,
                     'template' => 'main::content-dashboard'
                 ],
             ],

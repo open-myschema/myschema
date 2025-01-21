@@ -18,16 +18,16 @@ class RenderTemplateListener implements ActionHandlerInterface
 
     public function onHtmlRendered(HtmlRenderedAction $action): void
     {
-        $html = $action->getHtml();
-        $dom = \Dom\HTMLDocument::createFromString($html);
-        $head = $dom->head;
-        if ($head instanceof \Dom\HTMLElement) {
-            $meta = $dom->createElement('meta');
-            $meta->setAttribute('name', 'generator');
-            $meta->setAttribute('value', 'myschema');
-            $head->appendChild($meta);
-        }
+        // $html = $action->getHtml();
+        // $dom = \Dom\HTMLDocument::createFromString($html);
+        // $head = $dom->head;
+        // if ($head instanceof \Dom\HTMLElement) {
+        //     $meta = $dom->createElement('meta');
+        //     $meta->setAttribute('name', 'generator');
+        //     $meta->setAttribute('value', 'myschema');
+        //     $head->appendChild($meta);
+        // }
 
-        $action->setHtml($dom->saveHTML());
+        // $action->setHtml($dom->saveHTML());
     }
 }

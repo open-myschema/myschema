@@ -50,7 +50,7 @@ class DomTemplateRenderer implements TemplateRendererInterface
     private function getTemplateConfig(): array
     {
         if (! isset($this->template)) {
-            throw new \InvalidArgumentException("Template not set");
+            throw new \RuntimeException("Template not set");
         }
 
         $blocks = [];

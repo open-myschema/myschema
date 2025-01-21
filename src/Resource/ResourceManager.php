@@ -14,14 +14,14 @@ class ResourceManager
     {
     }
 
-    public function getBlock(string $blockName): array|bool
+    public function getBlock(string $blockName): array|bool|string
     {
         $config = $this->resourcesConfig['blocks'] ?? [];
         $block = $this->getResource($blockName, $config);
-        if (! $block) return FALSE;
+        if (! $block) return false;
 
         $parser = $this->getParser($config[$blockName]);
-        if (! $parser) return FALSE;
+        if (! $parser) return false;
 
         return $parser->parseResource($block);
     }
@@ -30,10 +30,10 @@ class ResourceManager
     {
         $config = $this->resourcesConfig['forms'] ?? [];
         $block = $this->getResource($formName, $config);
-        if (! $block) return FALSE;
+        if (! $block) return false;
 
         $parser = $this->getParser($config[$formName]);
-        if (! $parser) return FALSE;
+        if (! $parser) return false;
 
         return $parser->parseResource($block);
     }
@@ -44,30 +44,34 @@ class ResourceManager
         return $this->getResource($queryName, $config);
     }
 
-    public function getTemplate(string $templateName): array|bool
+    public function getTemplate(string $templateName): array|bool|string
     {
         $config = $this->resourcesConfig['templates'] ?? [];
         $template = $this->getResource($templateName, $config);
-        if (! $template) return FALSE;
+        if (! $template) return false;
 
         $parser = $this->getParser($config[$templateName]);
-        if (! $parser) return FALSE;
+        if (! $parser) return false;
 
         return $parser->parseResource($template);
     }
 
     private function getResource(string $resourceName, array $config): string|bool
     {
-        if (! array_key_exists($resourceName, $config)) return FALSE;
+        if (! array_key_exists($resourceName, $config)) return false;
         return $this->filesystem->read($config[$resourceName]);
     }
 
     private function getParser(string $resourceName): ResourceParserInterface|bool
     {
-        if (FALSE !== strpos($resourceName, '.json')) {
+        if (false !== strpos($resourceName, '.json')) {
             return new JsonResourceParser;
         }
 
-        return FALSE;
+        if (false !== strpos($resourceName, '.html')) {
+            return new HtmlResourceParser;
+        }
+
+        return false;
     }
 }
