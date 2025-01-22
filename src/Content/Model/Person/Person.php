@@ -15,4 +15,8 @@ class Person extends Content
     protected string $email;
     protected string $givenName;
     protected string $telephone;
+
+    public function __construct()
+    {
+    }
 }

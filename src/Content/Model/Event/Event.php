@@ -14,4 +14,8 @@ class Event extends Content
     protected Place|string $location;
     protected Organization $organizer;
     protected \DateTime $startDate;
+
+    public function __construct()
+    {
+    }
 }

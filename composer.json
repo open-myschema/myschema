@@ -1,33 +1,33 @@
 {
-    "name": "myschema/myschema",
-    "description": "Content manager",
-    "type": "project",
-    "license": "",
-    "autoload": {
-        "classmap": ["apps/*/src/"],
-        "psr-4": {
-            "MySchema\\": "src/",
-            "MySchemaTest\\": "test/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Collins Pamba",
-            "email": "collinspamba@outlook.com"
-        }
-    ],
-    "require": {
-        "laminas/laminas-config-aggregator": "^1.17",
-        "laminas/laminas-diactoros": "^3.5",
-        "laminas/laminas-httphandlerrunner": "^2.11",
-        "laminas/laminas-hydrator": "^4.16",
-        "laminas/laminas-inputfilter": "^2.31",
-        "laminas/laminas-stratigility": "^4.1",
-        "psr/event-dispatcher": "^1.0",
-        "symfony/console": "^7.2",
-        "mezzio/mezzio-fastroute": "^3.12",
-        "league/flysystem": "^3.29",
-        "psr/http-client": "^1.0",
-        "guzzlehttp/guzzle": "^7.9"
-    }
+	"name" : "myschema/myschema",
+	"description" : "Content manager",
+	"type" : "project",
+	"autoload" : {
+		"classmap" : [
+			"apps/*/src/"
+		],
+		"psr-4" : {
+			"MySchema\\" : "src/",
+			"MySchemaTest\\" : "test/"
+		}
+	},
+	"authors" : [{
+			"name" : "Collins Pamba",
+			"email" : "collinspamba@outlook.com"
+		}
+	],
+	"require" : {
+		"laminas/laminas-config-aggregator" : "^1.17",
+		"laminas/laminas-diactoros" : "^3.5",
+		"laminas/laminas-httphandlerrunner" : "^2.11",
+		"laminas/laminas-hydrator" : "^4.16",
+		"laminas/laminas-inputfilter" : "^2.31",
+		"laminas/laminas-stratigility" : "^4.1",
+		"psr/event-dispatcher" : "^1.0",
+		"symfony/console" : "^7.2",
+		"mezzio/mezzio-fastroute" : "^3.12",
+		"league/flysystem" : "^3.29",
+		"psr/http-client" : "^1.0",
+		"guzzlehttp/guzzle" : "^7.9"
+	}
 }

@@ -66,7 +66,7 @@ class WebPlatform implements PlatformInterface
         // resolve the template renderer
         $template = $this->resolveTemplate($request, $result);
         $config = $this->container->get('config')['resources']['templates'] ?? [];
-        $templateName = $config[$template] ?? '';
+        $templateName = $config[$template]['file'] ?? '';
 
         // DomTemplate supported formats
         $domTemplateSupported = ['json'];
@@ -89,7 +89,7 @@ class WebPlatform implements PlatformInterface
         ));
     }
 
-    private function resolveTemplate(ServerRequestInterface $request, ActionResult $result, string $default = 'content::error-404'): string
+    private function resolveTemplate(ServerRequestInterface $request, ActionResult $result, string $default = 'main::error-404'): string
     {
         if ($result->hasTemplate()) {
             return $result->getTemplate();

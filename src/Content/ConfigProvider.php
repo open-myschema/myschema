@@ -12,7 +12,6 @@ class ConfigProvider
             'dependencies' => $this->getDependencies(),
             'migrations' => $this->getMigrations(),
             'resources' => $this->getResources(),
-            'routes' => $this->getRoutes(),
         ];
     }
 
@@ -37,28 +36,9 @@ class ConfigProvider
     private function getResources(): array
     {
         return [
-            'blocks' => [
-                'main::content-dashboard' => '/resources/blocks/dashboard.html',
-                "main::top-navbar" => '/resources/blocks/navigation/navbar.html',
-            ],
-            'forms' => [],
-            'queries' => [],
-            'templates' => [
-                'main::error-404' => '/resources/templates/error/404.html',
-                'main::content-dashboard' => '/resources/templates/dashboard.html',
-            ],
-        ];
-    }
-
-    private function getRoutes(): array
-    {
-        return [
-            '/' => [
-                'methods' => ['GET', 'POST'],
-                'name' => 'content::dashboard',
-                'options' => [
-                    'action' => Action\DisplayDashboardAction::class,
-                    'template' => 'main::content-dashboard'
+            'queries' => [
+                'main::content-types' => [
+                    'postgres' => '/resources/queries/postgres/content/content_types.sql',
                 ],
             ],
         ];

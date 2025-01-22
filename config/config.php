@@ -21,6 +21,8 @@ $config = new ConfigAggregator([
     \MySchema\Content\ConfigProvider::class,
     \MySchema\PyServer\ConfigProvider::class,
     \MySchema\Helper\ConfigProvider::class,
+    \MySchema\Admin\ConfigProvider::class,
+    \MySchema\App\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
 

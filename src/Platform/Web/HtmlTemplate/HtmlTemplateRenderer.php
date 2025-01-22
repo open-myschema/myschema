@@ -12,13 +12,9 @@ use MySchema\Resource\ResourceManager;
 class HtmlTemplateRenderer implements TemplateRendererInterface
 {
     private const string ATTRIBUTE_BIND_LANGUAGE = 'data-ms-bind-attr-lang';
+    private const string ATTRIBUTE_BIND_HREF = 'data-ms-bind-attr-href';
     private const string ATTRIBUTE_BIND_VALUE = 'data-ms-bind-value';
     private const string ATTRIBUTE_TEMPLATE_BLOCK = 'data-ms-block';
-    private array $processAttributes = [
-        self::ATTRIBUTE_BIND_LANGUAGE,
-        self::ATTRIBUTE_BIND_VALUE,
-        self::ATTRIBUTE_TEMPLATE_BLOCK,
-    ];
     private string $template;
 
     public function __construct(private ResourceManager $resourceManager, private Escaper $escaper)
@@ -38,10 +34,10 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
             "int", "string", "null", "bool" => ['value' => $result->getData()],
             default => [],
         };
-        $params['site_title'] = 'MySchema!!!';
+        $params['site_title'] = 'MySchema';
 
         $template = $this->resourceManager->getTemplate($this->template);
-        $document = \Dom\HTMLDocument::createFromString($template);
+        $document = \Dom\HTMLDocument::createFromString($template['contents']);
         foreach ($document->childNodes as $element) {
             if (! $element instanceof \Dom\HTMLElement) {
                 continue;
@@ -63,24 +59,40 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         $element->setAttribute('lang', $params['lang'] ?? 'en');
     }
 
-    private function processAttributeBindValue(\Dom\HTMLElement $element, array $params): void
+    private function processAttributeBindHref(\Dom\HTMLElement $element, array $params, $debug = false): void
+    {
+        $value = $element->getAttribute(self::ATTRIBUTE_BIND_HREF);
+        $element->removeAttribute(self::ATTRIBUTE_BIND_HREF);
+        if (isset($params[$value]) && \is_scalar($params[$value])) {
+            $element->setAttribute('href', $params[$value]);
+        }
+    }
+
+    private function processAttributeBindValue(\Dom\HTMLElement $element, array $params, $debug = false): void
     {
         $value = $element->getAttribute(self::ATTRIBUTE_BIND_VALUE);
+        $element->removeAttribute(self::ATTRIBUTE_BIND_VALUE);
         if (isset($params[$value]) && \is_scalar($params[$value])) {
             $element->textContent = $this->escaper->escapeHtml($params[$value]);
         }
-        $element->removeAttribute(self::ATTRIBUTE_BIND_VALUE);
     }
 
-    private function processElement(\Dom\HTMLDocument $document, \Dom\HTMLElement $element, array $params): void
+    private function processElement(\Dom\HTMLDocument $document, \Dom\HTMLElement $element, array $params, $debug = false): void
     {
-        foreach ($element->attributes as $attribute) {
-            match ($attribute->name) {
-                self::ATTRIBUTE_TEMPLATE_BLOCK => $this->processTemplateBlock($document, $element, $params),
-                self::ATTRIBUTE_BIND_LANGUAGE => $this->processAttributeBindLanguage($element, $params),
-                self::ATTRIBUTE_BIND_VALUE => $this->processAttributeBindValue($element, $params),
-                default => null
-            };
+        if ($element->hasAttribute(self::ATTRIBUTE_TEMPLATE_BLOCK)) {
+            $this->processTemplateBlock($document, $element, $params);
+        }
+
+        if ($element->hasAttribute(self::ATTRIBUTE_BIND_LANGUAGE)) {
+            $this->processAttributeBindLanguage($element, $params);
+        }
+
+        if ($element->hasAttribute(self::ATTRIBUTE_BIND_HREF)) {
+            $this->processAttributeBindHref($element, $params, $debug);
+        }
+
+        if ($element->hasAttribute(self::ATTRIBUTE_BIND_VALUE)) {
+            $this->processAttributeBindValue($element, $params, $debug);
         }
 
         // recursively process child nodes
@@ -89,7 +101,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
                 continue;
             }
 
-            $this->processElement($document, $node, $params);
+            $this->processElement($document, $node, $params, $debug);
         }
     }
 
@@ -98,21 +110,18 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         $blockName = $element->getAttribute(self::ATTRIBUTE_TEMPLATE_BLOCK);
         $element->removeAttribute(self::ATTRIBUTE_TEMPLATE_BLOCK);
 
+        // resolve, process the block
         $block = $this->resourceManager->getBlock($blockName);
-        if (! is_string($block)) {
-            return;
-        }
-
-        if ($element->getAttribute('data-ms-block-type') === 'repeating') {
-            // render immediately
-            $element->innerHTML = $block;
+        if (isset($block['config']['repeating']) && true === $block['config']['repeating']) {
             $param = $element->getAttribute('data-ms-bind-value');
-            if (\is_string($param)) {
-                $element->removeAttribute('data-ms-bind-value');
-                if (isset($params[$param]) && \is_array($params[$param])) {
-                    foreach ($params[$param] as $item) {
-                        $itemElement = $document->createElement($element->tagName);
-                        $itemElement->innerHTML = $block;
+            if (\is_string($param) && isset($params[$param]) && \is_array($params[$param])) {
+                foreach ($params[$param] as $item) {
+                    $itemElement = $document->createElement($element->tagName);
+                    $itemElement->innerHTML = $block['contents'];
+                    if (isset($block['config']['innerHTML']) && false === $block['config']['innerHTML']) {
+                        $this->processElement($document, $itemElement->firstChild, $item, true);
+                        $element->insertAdjacentElement(\Dom\AdjacentPosition::AfterEnd, $itemElement->firstChild);
+                    } else {
                         $this->processElement($document, $itemElement, $item);
                         $element->insertAdjacentElement(\Dom\AdjacentPosition::AfterEnd, $itemElement);
                     }
@@ -120,7 +129,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
             }
             $element->remove();
         } else {
-            $element->innerHTML = $block;
+            $element->innerHTML = $block['contents'];
         }
     }
 }

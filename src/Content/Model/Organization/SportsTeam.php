@@ -11,6 +11,20 @@ class SportsTeam extends SportsOrganization
     protected Person|array $athlete;
     protected Person $coach;
 
+    public function __construct()
+    {
+        // set types, tags
+        $types = ['main::sports-team'];
+        $tags = ['sports team'];
+
+        $this->types = isset($this->types)
+            ? $this->types + $types
+            : $types;
+        $this->tags = isset($this->tags)
+            ? $this->tags + $tags
+            : $tags;
+    }
+
     public function toArray(): array
     {
         $output = parent::toArray();

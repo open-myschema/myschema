@@ -7,16 +7,13 @@ namespace MySchema\Database;
 use Psr\Container\ContainerInterface;
 use InvalidArgumentException;
 use PDO;
-use function array_key_exists;
-use function implode;
-use function sprintf;
 
 final class ConnectionFactory
 {
     private Connection $connection;
     private array $allowedDrivers = [
-        'pdo_pgsql',
-        'pdo_sqlite',
+        'postgres',
+        'sqlite',
     ];
     private array $databases = [];
 
@@ -30,8 +27,8 @@ final class ConnectionFactory
             }
 
             foreach ($app['database'] as $name => $config) {
-                if (array_key_exists($name, $this->databases)) {
-                    throw new InvalidArgumentException(sprintf(
+                if (\array_key_exists($name, $this->databases)) {
+                    throw new InvalidArgumentException(\sprintf(
                         "Duplicate database key %s",
                         $name
                     ));
@@ -46,22 +43,22 @@ final class ConnectionFactory
     {
         if (! isset($this->connection)) {
             if (! isset($this->databases[$connection])) {
-                throw new InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(\sprintf(
                     "Database connection %s not found in config",
                     $connection
                 ));
             }
 
             $config = $this->databases[$connection];
-            if (! isset($config['driver']) || ! in_array($config['driver'], $this->allowedDrivers)) {
-                throw new InvalidArgumentException(sprintf(
+            if (! isset($config['driver']) || ! \in_array($config['driver'], $this->allowedDrivers)) {
+                throw new InvalidArgumentException(\sprintf(
                     "Invalid or missing database driver. Allowed drivers include: %s",
-                    implode(', ', $this->allowedDrivers)
+                    \implode(', ', $this->allowedDrivers)
                 ));
             }
 
             // build the dsn
-            if ($config['driver'] === 'pdo_sqlite') {
+            if ($config['driver'] === 'pdo_sqlite' || $config['driver'] === 'sqlite') {
                 $dbname = $config['dbname'];
                 $dsn = "sqlite:$dbname";
             } else {

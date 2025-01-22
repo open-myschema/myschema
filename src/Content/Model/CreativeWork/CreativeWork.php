@@ -7,6 +7,7 @@ namespace MySchema\Content\Model\CreativeWork;
 use MySchema\Content\Model\Content;
 use MySchema\Content\Model\Organization\Organization;
 use MySchema\Content\Model\Person\Person;
+use MySchema\Content\Model\Place\Place;
 
 class CreativeWork extends Content
 {
@@ -15,6 +16,6 @@ class CreativeWork extends Content
     protected Organization|Person|array $creator;
     protected \DateTime $dateCreated;
     protected \DateTime $dateModified;
-    protected Organization|Persion $publisher;
+    protected Organization|Person $publisher;
     protected int|string $version;
 }
