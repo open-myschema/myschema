@@ -2,25 +2,27 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Database\Migrator;
+namespace MySchema\Database\Command;
 
 use MySchema\Command\BaseCommand;
+use MySchema\Command\Validator\CommandInputValidator;
+use MySchema\Helper\DatabaseConnectionTrait;
+use MySchema\Helper\ServiceFactoryTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
 
+use function array_values;
 use function explode;
-use function getcwd;
-use function file_exists;
-use function file_get_contents;
 use function sprintf;
 use function strlen;
 
 final class RunCommand extends BaseCommand
 {
-    use MigrationTrait;
+    use DatabaseConnectionTrait;
+    use ServiceFactoryTrait;
 
     public function configure(): void
     {
@@ -43,56 +45,32 @@ final class RunCommand extends BaseCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        
+        // validate the input
+        $validator = new CommandInputValidator($this->getDefinition());
+        if (! $validator->isValid($input->getOptions() + $input->getArguments())) {
+            $io->error(array_values($validator->getMessages()));
+            return BaseCommand::FAILURE;
+        }
 
         // get details
         $database = $input->getOption('database');
-        $name = $input->getOption('name') ?? '';
-        $config = $this->container->get('config')['migrations'];
-        if (! isset($config[$database])) {
-            $io->error(sprintf("Database %s not found in migrations config", $database));
-            return BaseCommand::FAILURE;
-        }
+        $name = $input->getOption('name');
 
-        if (! isset($config[$database][$name])) {
-            $io->error(sprintf(
-                "Migration %s not found in config for database %s migrations",
-                $name, $database
-            ));
-            return BaseCommand::FAILURE;
-        }
-
-        $migration = $config[$database][$name];
-        if (! isset($migration['up']) || ! isset($migration['down'])) {
-            $io->error(sprintf(
-                "Ensure migration %s on database %s has both up and down keys configured",
-                $name, $database
-            ));
-            return BaseCommand::FAILURE;
-        }
-
-        $upFile = getcwd() . $migration['up'];
-        $downFile = getcwd() . $migration['down'];
-        if (! file_exists($upFile)) {
-            $io->error(sprintf(
-                "Migration up file %s not found",
-                $upFile
-            ));
-            return BaseCommand::FAILURE;
-        }
-        if (! file_exists($downFile)) {
-            $io->error(sprintf(
-                "Migration down file %s not found",
-                $downFile
-            ));
+        // get the database connection
+        try {
+            $connection = $this->getDatabaseConnection($database);
+        } catch (Throwable $e) {
+            $io->error($e->getMessage());
             return BaseCommand::FAILURE;
         }
 
         // execute queries
-        $connection = $this->getDatabaseConnection($database);
-        $contents = file_get_contents($upFile);
         $connection->beginTransaction();
+        $resourceManager = $this->getResourceManager($this->container);
         try {
-            foreach (explode(';', $contents) as $sql) {
+            $migration = $resourceManager->getMigration($connection->getDriver(), $name, 'up');
+            foreach (explode(';', $migration) as $sql) {
                 if (strlen($sql) === 0) {
                     continue;
                 }
@@ -101,18 +79,21 @@ final class RunCommand extends BaseCommand
             }
             $connection->commit();
         } catch (Throwable $e) {
-            $io->error($e->getMessage());
             $connection->rollback();
+            $io->error($e->getMessage());
             return BaseCommand::FAILURE;
         }
 
+        // @todo actually run this query below first before the migration itself?
+        // if this query fails, rollback and do not proceed
+        // if migration fails at any point, also rollback this query..
+
         // update migration table
-        $insertMigration = "INSERT INTO migration (database, name, description, status)
-            VALUES(:database, :name, :description, :status)";
+        $insertMigration = "INSERT INTO migration (database, name, status)
+            VALUES(:database, :name, :status)";
         $connection->write($insertMigration, [
             'database' => $database,
             'name' => $name,
-            'description' => $migration['description'] ?? '',
             'status' => 1
         ]);
 

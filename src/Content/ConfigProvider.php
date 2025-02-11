@@ -11,7 +11,6 @@ class ConfigProvider
         return [
             'content' => $this->getContentConfig(),
             'dependencies' => $this->getDependencies(),
-            'migrations' => $this->getMigrations(),
             'resources' => $this->getResources(),
             'routes' => $this->getRoutes(),
         ];
@@ -63,11 +62,42 @@ class ConfigProvider
     private function getMigrations(): array
     {
         return [
-            'main' => [
-                'content' => [
-                    'description' => 'Create content tables',
-                    'up' => '/resources/migrations/content/up.sql',
-                    'down' => '/resources/migrations/content/down.sql',
+            'main::create-content-tables' => [
+                'description' => 'Create content tables',
+                'postgres' => [
+                    'up' => '/resources/migrations/postgres/content/up.sql',
+                    'down' => '/resources/migrations/postgres/content/down.sql',
+                ],
+            ],
+        ];
+    }
+
+    private function getQueries(): array
+    {
+        return [
+            'main::content-types' => [
+                'postgres' => [
+                    'file' => '/resources/queries/postgres/content/content_types.sql',
+                ],
+            ],
+            'main::create-content' => [
+                'postgres' => [
+                    'file' => '/resources/queries/postgres/content/create_content.sql',
+                ],
+            ],
+            'main::create-content-meta' => [
+                'postgres' => [
+                    'file' => '/resources/queries/postgres/content/create_content_meta.sql',
+                ],
+            ],
+            'main::create-content-tag' => [
+                'postgres' => [
+                    'file' => '/resources/queries/postgres/content/create_content_tag.sql',
+                ],
+            ],
+            'main::create-content-type' => [
+                'postgres' => [
+                    'file' => '/resources/queries/postgres/content/create_content_type.sql',
                 ],
             ],
         ];
@@ -81,23 +111,8 @@ class ConfigProvider
                     'file' => '/resources/blocks/navigation/navbar.html',
                 ],
             ],
-            'queries' => [
-                'main::content-types' => [
-                    'postgres' => '/resources/queries/postgres/content/content_types.sql',
-                ],
-                'main::create-content' => [
-                    'postgres' => '/resources/queries/postgres/content/create_content.sql',
-                ],
-                'main::create-content-meta' => [
-                    'postgres' => '/resources/queries/postgres/content/create_content_meta.sql',
-                ],
-                'main::create-content-tag' => [
-                    'postgres' => '/resources/queries/postgres/content/create_content_tag.sql',
-                ],
-                'main::create-content-type' => [
-                    'postgres' => '/resources/queries/postgres/content/create_content_type.sql',
-                ],
-            ],
+            'migrations' => $this->getMigrations(),
+            'queries' => $this->getQueries(),
             'templates' => [
                 'main::content-dashboard' => [
                     'file' => '/resources/templates/content/dashboard.html',
@@ -115,24 +130,6 @@ class ConfigProvider
     private function getRoutes(): array
     {
         return [
-            '/' => [
-                'methods' => ['GET', 'POST'],
-                'name' => 'main::content-dashboard',
-                'options' => [
-                    'template' => 'main::content-dashboard',
-                    'queries' => [
-                        'fixtures' => [
-                            'connection' => 'tips',
-                            'name' => 'tips::football',
-                            'defaults' => [
-                                'start' => (new \DateTime(timezone: new \DateTimeZone('UTC')))->format('Y-m-d'),
-                                'end' => ((new \DateTime(timezone: new \DateTimeZone('UTC')))->add(new \DateInterval('P1D')))->format('Y-m-d'),
-                            ],
-                            'json_decode' => ['sources', 'main_odds', 'result'],
-                        ],
-                    ],
-                ],
-            ],
             '/t/{category}' => [
                 'methods' => ['GET', 'POST'],
                 'name' => 'main::content-category-dashboard',

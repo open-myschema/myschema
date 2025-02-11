@@ -11,6 +11,7 @@ class ConfigProvider
         return [
             'dependencies' => $this->getDependencies(),
             'resources' => $this->getResources(),
+            'routes' => $this->getRoutes(),
         ];
     }
 
@@ -34,6 +35,19 @@ class ConfigProvider
                 ],
             ],
             'templates' => [],
+        ];
+    }
+
+    private function getRoutes(): array
+    {
+        return [
+            '/' => [
+                'methods' => ['GET', 'POST'],
+                'name' => 'main::content-dashboard',
+                'options' => [
+                    'template' => 'main::content-dashboard',
+                ],
+            ],
         ];
     }
 }

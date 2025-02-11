@@ -35,7 +35,7 @@ class CreateContentCommand extends BaseCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         // get content object
-        $content = $this->getParam('content');
+        $content = $input->getOption('content');
         if (! $content instanceof Content) {
             $output->writeln("No content found");
             if ($output instanceof Psr7ResponseOutputInterface) {
@@ -46,7 +46,7 @@ class CreateContentCommand extends BaseCommand
         }
 
         // validate input
-        $inputFilter = $this->composeInputFilter($this->getParam('input_filters', []));
+        $inputFilter = $this->composeInputFilter($input->getOption('input_filters', []));
         $inputFilter->setData($content->toArray());
         if (! $inputFilter->isValid()) {
             $output->writeln($inputFilter->getMessages());
@@ -61,7 +61,7 @@ class CreateContentCommand extends BaseCommand
 
         // check if content already exists via type and identifier
         $contentExists = (new ContentExistsValidator($connection))->exists(
-            params: $this->getParam('check_exists', [])
+            params: $input->getOption('check_exists')
         );
         if (false !== $contentExists) {
             $output->writeln(sprintf(
