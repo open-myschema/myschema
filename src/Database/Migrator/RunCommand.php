@@ -4,28 +4,39 @@ declare(strict_types= 1);
 
 namespace MySchema\Database\Migrator;
 
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Command\Command;
+use MySchema\Command\BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
-final class RunCommand extends Command
+use function explode;
+use function getcwd;
+use function file_exists;
+use function file_get_contents;
+use function sprintf;
+use function strlen;
+
+final class RunCommand extends BaseCommand
 {
     use MigrationTrait;
 
-    private string $name = 'migration:run';
-
-    public function __construct(private ContainerInterface $container)
-    {
-        parent::__construct($this->name);
-    }
-
     public function configure(): void
     {
-        $this->addOption('database', 'd', InputOption::VALUE_OPTIONAL, 'The database to perform migrations', 'main');
-        $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'The name of the migration i.e it\'s config key');
+        $this->addOption(
+            name: 'database',
+            shortcut: 'd',
+            mode: InputOption::VALUE_OPTIONAL,
+            description: 'The database to perform migrations',
+            default: 'main'
+        );
+        $this->addOption(
+            name: 'name',
+            shortcut: null,
+            mode: InputOption::VALUE_REQUIRED,
+            description: 'The name of the migration i.e it\'s config key'
+        );
         $this->setDescription('Execute one or more pending migrations');
     }
 
@@ -38,61 +49,61 @@ final class RunCommand extends Command
         $name = $input->getOption('name') ?? '';
         $config = $this->container->get('config')['migrations'];
         if (! isset($config[$database])) {
-            $io->error(\sprintf("Database %s not found in migrations config", $database));
-            return Command::FAILURE;
+            $io->error(sprintf("Database %s not found in migrations config", $database));
+            return BaseCommand::FAILURE;
         }
 
         if (! isset($config[$database][$name])) {
-            $io->error(\sprintf(
+            $io->error(sprintf(
                 "Migration %s not found in config for database %s migrations",
                 $name, $database
             ));
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
 
         $migration = $config[$database][$name];
         if (! isset($migration['up']) || ! isset($migration['down'])) {
-            $io->error(\sprintf(
+            $io->error(sprintf(
                 "Ensure migration %s on database %s has both up and down keys configured",
                 $name, $database
             ));
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
 
-        $upFile = \getcwd() . $migration['up'];
-        $downFile = \getcwd() . $migration['down'];
-        if (! \file_exists($upFile)) {
-            $io->error(\sprintf(
+        $upFile = getcwd() . $migration['up'];
+        $downFile = getcwd() . $migration['down'];
+        if (! file_exists($upFile)) {
+            $io->error(sprintf(
                 "Migration up file %s not found",
                 $upFile
             ));
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
-        if (! \file_exists($downFile)) {
-            $io->error(\sprintf(
+        if (! file_exists($downFile)) {
+            $io->error(sprintf(
                 "Migration down file %s not found",
                 $downFile
             ));
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
 
         // execute queries
         $connection = $this->getDatabaseConnection($database);
-        $contents = \file_get_contents($upFile);
+        $contents = file_get_contents($upFile);
         $connection->beginTransaction();
         try {
-            foreach (\explode(';', $contents) as $sql) {
-                if (\strlen($sql) === 0) {
+            foreach (explode(';', $contents) as $sql) {
+                if (strlen($sql) === 0) {
                     continue;
                 }
-    
+
                 $connection->write($sql);
             }
             $connection->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->error($e->getMessage());
             $connection->rollback();
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
 
         // update migration table
@@ -109,6 +120,11 @@ final class RunCommand extends Command
             "Migration %s on database %s successfully run",
             $name, $database
         ));
-        return Command::SUCCESS;
+        return BaseCommand::SUCCESS;
+    }
+
+    public function isAuthorized(): bool
+    {
+        return true;
     }
 }

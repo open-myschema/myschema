@@ -6,5 +6,5 @@ namespace MySchema\Resource;
 
 interface ResourceParserInterface
 {
-    public function parseResource(string $contents): array;
+    public function parseResource(string $contents): array|string;
 }

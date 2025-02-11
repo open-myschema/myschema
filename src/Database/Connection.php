@@ -6,7 +6,7 @@ namespace MySchema\Database;
 
 class Connection
 {
-    public function __construct(private \PDO $pdo)
+    public function __construct(private \PDO $pdo, private string $driver)
     {
     }
 
@@ -30,6 +30,11 @@ class Connection
     public function fetchAll(string $query, array $params = [], int $mode = \PDO::FETCH_ASSOC): mixed
     {
         return $this->read($query, $params, $mode);
+    }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
     }
 
     public function insert(string $query, array $params = []): bool|string

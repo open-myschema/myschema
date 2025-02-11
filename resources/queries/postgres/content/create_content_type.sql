@@ -1,0 +1,1 @@
+INSERT INTO content_type (content_id, data) VALUES(:content_id, :data)

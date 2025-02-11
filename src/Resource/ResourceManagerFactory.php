@@ -13,7 +13,22 @@ final class ResourceManagerFactory
     public function __invoke(ContainerInterface $container): ResourceManager
     {
         $config = $container->get('config')['resources'] ?? [];
-        $adapter = new LocalFilesystemAdapter(getcwd());
+        $apps = $container->get('apps');
+        foreach ($apps as $appConfig) {
+            foreach ($appConfig['resources']['templates'] ?? [] as $name => $templateConfig) {
+                $config['templates'][$name] = $templateConfig;
+            }
+
+            foreach ($appConfig['resources']['blocks'] ?? [] as $name => $blockConfig) {
+                $config['blocks'][$name] = $blockConfig;
+            }
+
+            foreach ($appConfig['resources']['queries'] ?? [] as $name => $queryConfig) {
+                $config['queries'][$name] = $queryConfig;
+            }
+        }
+
+        $adapter = new LocalFilesystemAdapter(\getcwd());
         $filesystem = new Filesystem($adapter);
 
         return new ResourceManager($filesystem, $config);

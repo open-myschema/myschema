@@ -27,7 +27,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'description',
             'required' => false,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\HtmlEntities::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => false,
             'continue_if_empty' => true,
@@ -39,7 +43,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'identifier',
             'required' => false,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\HtmlEntities::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => true,
             'continue_if_empty' => true,
@@ -51,7 +59,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'image',
             'required' => false,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\HtmlEntities::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => true,
             'continue_if_empty' => true,
@@ -63,7 +75,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'name',
             'required' => false,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\StringTrim::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => true,
             'continue_if_empty' => true,
@@ -75,7 +91,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'owner',
             'required' => true,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\ToInt::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => false,
             'continue_if_empty' => true,
@@ -135,7 +155,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'url',
             'required' => false,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\HtmlEntities::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => true,
             'continue_if_empty' => true,
@@ -147,7 +171,11 @@ class ContentInputFilter extends InputFilter
         return [
             'name' => 'visibility',
             'required' => true,
-            'filters' => [],
+            'filters' => [
+                [
+                    'name' => \Laminas\Filter\ToInt::class,
+                ]
+            ],
             'validators' => [],
             'allow_empty' => false,
             'continue_if_empty' => true,

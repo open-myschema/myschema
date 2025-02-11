@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace MySchema\Platform\Web\Listener;
 
-use MySchema\Action\ActionHandlerInterface;
-use MySchema\Platform\Web\Action\HtmlRenderedAction;
+use MySchema\EventManager\EventListenerInterface;
+use MySchema\Platform\Web\Event\HtmlRenderedEvent;
 
-class RenderTemplateListener implements ActionHandlerInterface
+class RenderTemplateListener implements EventListenerInterface
 {
     public function getListeners(): array
     {
         return [
-            HtmlRenderedAction::class => [$this, 'onHtmlRendered'],
+            HtmlRenderedEvent::class => [$this, 'onHtmlRendered'],
         ];
     }
 
-    public function onHtmlRendered(HtmlRenderedAction $action): void
+    public function onHtmlRendered(HtmlRenderedEvent $action): void
     {
         $html = $action->getHtml();
         $dom = \Dom\HTMLDocument::createFromString($html);

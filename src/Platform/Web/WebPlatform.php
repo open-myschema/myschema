@@ -4,19 +4,25 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform\Web;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Router\RouteResult;
-use MySchema\Action\ActionResult;
+use MySchema\Command\CommandOutputRendererInterface;
+use MySchema\Command\Psr7ResponseOutputInterface;
 use MySchema\Helper\ServiceFactoryTrait;
-use MySchema\Platform\AcionResultRendererInterface;
 use MySchema\Platform\PlatformInterface;
 use MySchema\Platform\SimpleJsonRenderer;
-use MySchema\Platform\Web\Action\HtmlRenderedAction;
 use MySchema\Platform\Web\DomTemplate\DomTemplateRenderer;
+use MySchema\Platform\Web\Event\HtmlRenderedEvent;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+use function is_string;
+use function sprintf;
+use function strpos;
 
 class WebPlatform implements PlatformInterface
 {
@@ -26,52 +32,61 @@ class WebPlatform implements PlatformInterface
     {
     }
 
-    public function formatResponse(ServerRequestInterface $request, ActionResult $result): ResponseInterface
+    public function formatResponse(ServerRequestInterface $request, OutputInterface $output): ResponseInterface
     {
         // get the relevant renderer
-        $renderer = $this->getRenderer($request, $result);
+        $renderer = $this->getRenderer($request, $output);
+
+        // get status and headers
+        $status = $output instanceof Psr7ResponseOutputInterface
+            ? $output->getStatusCode()
+            : StatusCodeInterface::STATUS_OK;
+        $headers = $output instanceof Psr7ResponseOutputInterface
+            ? $output->getHeaders()
+            : [];
 
         // JSON response
         if ($renderer instanceof SimpleJsonRenderer) {
-            $data = $renderer->render($result);
-            return new JsonResponse($data, $result->getCode(), $result->getHeaders());
+            $data = $renderer->render($output);
+            return new JsonResponse($data, $status, $headers);
         }
 
         // HTML response
         if ($renderer instanceof TemplateRendererInterface) {
-            $renderer->setTemplate($this->resolveTemplate($request, $result));
+            $renderer->setTemplate($this->resolveTemplate($request, $output));
         }
 
         // render the result
-        $html = $renderer->render($result);
+        $html = $renderer->render($output);
 
-        /** @var HtmlRenderedAction */
-        $htmlRenderedEvent = $this->getEventDispatcher($this->container)
-            ->dispatch(new HtmlRenderedAction(
+        // dispatch html rendered event
+        $event = $this->getEventDispatcher($this->container)
+            ->dispatch(new HtmlRenderedEvent(
                 $request,
-                $result,
+                $output,
                 $html
             ));
+        assert($event instanceof HtmlRenderedEvent);
 
-        return new HtmlResponse($htmlRenderedEvent->getHtml(), $result->getCode(), $result->getHeaders());
+        return new HtmlResponse($event->getHtml(), $status, $headers);
     }
 
-    private function getRenderer(ServerRequestInterface $request, ActionResult $result): AcionResultRendererInterface
+    private function getRenderer(ServerRequestInterface $request, OutputInterface $result): CommandOutputRendererInterface
     {
         $accept = $request->getHeaderLine('accept');
-        if (false !== \strpos($accept, 'application/json')) {
+        if (false !== strpos($accept, 'application/json')) {
             return new SimpleJsonRenderer();
         }
 
         // resolve the template renderer
         $template = $this->resolveTemplate($request, $result);
         $config = $this->container->get('config')['resources']['templates'] ?? [];
-        $templateName = $config[$template] ?? '';
+        $templateName = $config[$template]['file'] ?? '';
 
         // DomTemplate supported formats
         $domTemplateSupported = ['json'];
         foreach ($domTemplateSupported as $supported) {
-            if (FALSE !== \strpos($templateName, $supported)) {
+            if (FALSE !== strpos($templateName, $supported)) {
                 return $this->container->get(DomTemplateRenderer::class);
             }
         }
@@ -83,16 +98,16 @@ class WebPlatform implements PlatformInterface
             }
         }
 
-        throw new \InvalidArgumentException(\sprintf(
+        throw new \InvalidArgumentException(sprintf(
             "Unsupported template format for template %s",
             $template
         ));
     }
 
-    private function resolveTemplate(ServerRequestInterface $request, ActionResult $result, string $default = 'content::error-404'): string
+    private function resolveTemplate(ServerRequestInterface $request, OutputInterface $output, string $default = 'main::error-404'): string
     {
-        if ($result->hasTemplate()) {
-            return $result->getTemplate();
+        if ($output->hasTemplate()) {
+            return $output->getTemplate();
         }
 
         $routeResult = $request->getAttribute(RouteResult::class);
@@ -101,7 +116,7 @@ class WebPlatform implements PlatformInterface
         }
 
         $routeOptions = $routeResult->getMatchedRoute()->getOptions();
-        if (! isset($routeOptions['template']) || ! \is_string($routeOptions['template'])) {
+        if (! isset($routeOptions['template']) || ! is_string($routeOptions['template'])) {
             return $default;
         }
 

@@ -1,0 +1,1 @@
+select distinct data from content_type

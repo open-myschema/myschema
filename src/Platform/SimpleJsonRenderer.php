@@ -4,20 +4,29 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform;
 
-use MySchema\Action\ActionResult;
+use MySchema\Command\CommandOutputRendererInterface;
+use MySchema\Command\Psr7ResponseOutputInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class SimpleJsonRenderer implements AcionResultRendererInterface
+use function json_encode;
+
+class SimpleJsonRenderer implements CommandOutputRendererInterface
 {
-    public function render(ActionResult $result): string
+    public function render(OutputInterface $output): string
     {
-        $data = match ($result->getDataType()) {
-            "array" => $result->getData(),
-            "int", "string", "null", "bool" => ['value' => $result->getData()],
-            ResponseInterface::class => [$result->getData()->getBody()->getContents()],
+        assert($output instanceof Psr7ResponseOutputInterface);
+
+        if ($output->hasError()) {
+            //
+        }
+        $data = match ($output->getDataType()) {
+            "array" => $output->getData(),
+            "int", "string", "null", "bool" => ['value' => $output->getData()],
+            ResponseInterface::class => [$output->getData()->getBody()->getContents()],
             default => [],
         };
 
-        return \json_encode($data);
+        return json_encode($data);
     }
 }

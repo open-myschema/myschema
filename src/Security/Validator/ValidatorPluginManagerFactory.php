@@ -7,6 +7,7 @@ namespace MySchema\Security\Validator;
 use Laminas\ServiceManager\Config;
 use Laminas\Validator\ValidatorPluginManager;
 use Psr\Container\ContainerInterface;
+use function array_merge;
 
 final class ValidatorPluginManagerFactory
 {
@@ -21,7 +22,7 @@ final class ValidatorPluginManagerFactory
                 continue;
             }
 
-            $config = \array_merge($config, $app['validators']);
+            $config = array_merge($config, $app['validators']);
         }
 
         // If we do not have validators configuration, nothing more to do

@@ -4,23 +4,18 @@ declare(strict_types= 1);
 
 namespace MySchema\Database\Migrator;
 
-use Psr\Container\ContainerInterface;
+use MySchema\Command\BaseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class RollBackCommand extends Command
+use function sprintf;
+
+final class RollBackCommand extends BaseCommand
 {
     use MigrationTrait;
-
-    private string $name = 'migration:rollback';
-
-    public function __construct(private ContainerInterface $container)
-    {
-        parent::__construct($this->name);
-    }
 
     public function configure(): void
     {
@@ -38,12 +33,12 @@ final class RollBackCommand extends Command
         $name = $input->getOption('name') ?? '';
         $config = $this->container->get('config')['migrations'];
         if (! isset($config[$database])) {
-            $io->error(\sprintf("Database %s not found in migrations config", $database));
+            $io->error(sprintf("Database %s not found in migrations config", $database));
             return Command::FAILURE;
         }
 
         if (! isset($config[$database][$name])) {
-            $io->error(\sprintf(
+            $io->error(sprintf(
                 "Migration %s not found in config for database %s migrations",
                 $name, $database
             ));
@@ -52,7 +47,7 @@ final class RollBackCommand extends Command
 
         $migration = $config[$database][$name];
         if (! isset($migration['down'])) {
-            $io->error(\sprintf(
+            $io->error(sprintf(
                 "Ensure migration %s on database %s has the down key configured",
                 $name, $database
             ));
@@ -61,7 +56,7 @@ final class RollBackCommand extends Command
 
         $downFile = \getcwd() . $migration['down'];
         if (! \file_exists($downFile)) {
-            $io->error(\sprintf(
+            $io->error(sprintf(
                 "Migration down file %s not found",
                 $downFile
             ));
@@ -90,5 +85,10 @@ final class RollBackCommand extends Command
             $name, $database
         ));
         return Command::SUCCESS;
+    }
+
+    public function isAuthorized(): bool
+    {
+        return true;
     }
 }

@@ -1,6 +1,15 @@
-/.vscode/
-/vendor/
+.vscode/
+.settings/
+vendor/
 scripts/
 local.php
 *local.php
 *.sqlite
+*.db
+__pycache__/
+venv/
+.venv/
+.buildpath
+.project
+.pydevproject
+uploads/

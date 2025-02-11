@@ -50,7 +50,7 @@ class DomTemplateRenderer implements TemplateRendererInterface
     private function getTemplateConfig(): array
     {
         if (! isset($this->template)) {
-            throw new \InvalidArgumentException("Template not set");
+            throw new \RuntimeException("Template not set");
         }
 
         $blocks = [];
@@ -93,6 +93,9 @@ class DomTemplateRenderer implements TemplateRendererInterface
     private function renderHead(\Dom\HTMLDocument $document, array $templateConfig): \Dom\HTMLElement
     {
         $head = $document->createElement('head');
+        $link = $document->createElement('link');
+        $link->setAttribute('href', '/static/css/pico.css');
+        $link->setAttribute('rel', 'stylesheet');
 
         // meta tags
         $meta = [
@@ -109,6 +112,7 @@ class DomTemplateRenderer implements TemplateRendererInterface
         $title = $document->createElement('title');
         $title->textContent = $templateConfig['title'];
         $head->appendChild($title);
+        $head->appendChild($link);
 
         return $head;
     }

@@ -9,21 +9,19 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
-            'console' => $this->getConsoleCommands(),
+            'commands' => $this->getCommands(),
             'dependencies' => $this->getDependencies(),
             'migrations' => $this->getMigrations(),
         ];
     }
 
-    private function getConsoleCommands(): array
+    private function getCommands(): array
     {
         return [
-            'commands' => [
-                Migrator\RollBackCommand::class,
-                Migrator\RunCommand::class,
-                Migrator\SetupCommand::class,
-                Migrator\StatusCommand::class,
-            ],
+            'migrations:rollback' => Migrator\RollBackCommand::class,
+            'migrations:run' => Migrator\RunCommand::class,
+            'migrations:setup' => Migrator\SetupCommand::class,
+            'migrations:status' => Migrator\StatusCommand::class,
         ];
     }
 
@@ -31,10 +29,10 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                Migrator\RollBackCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
-                Migrator\RunCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
-                Migrator\SetupCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
-                Migrator\StatusCommand::class => \MySchema\Helper\ConsoleCommandFactory::class,
+                Migrator\RollBackCommand::class => \MySchema\Command\CommandFactory::class,
+                Migrator\RunCommand::class => \MySchema\Command\CommandFactory::class,
+                Migrator\SetupCommand::class => \MySchema\Command\CommandFactory::class,
+                Migrator\StatusCommand::class => \MySchema\Command\CommandFactory::class,
             ],
         ];
     }

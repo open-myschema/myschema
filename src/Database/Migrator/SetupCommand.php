@@ -6,22 +6,14 @@ namespace MySchema\Database\Migrator;
 
 use MySchema\Database\ConnectionFactory;
 use MySchema\Helper\ServiceFactoryTrait;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use MySchema\Command\BaseCommand;
 
-class SetupCommand extends Command
+class SetupCommand extends BaseCommand
 {
     use ServiceFactoryTrait;
-
-    private string $name = "migrations:setup";
-
-    public function __construct(private ContainerInterface $container)
-    {
-        parent::__construct($this->name);
-    }
 
     public function configure(): void
     {
@@ -50,6 +42,11 @@ class SetupCommand extends Command
         }
 
         $io->success("Migration table setup");
-        return Command::SUCCESS;
+        return BaseCommand::SUCCESS;
+    }
+
+    public function isAuthorized(): bool
+    {
+        return true;
     }
 }
