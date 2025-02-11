@@ -4,9 +4,9 @@ declare(strict_types= 1);
 
 namespace MySchema\Platform\Web;
 
-use MySchema\Platform\AcionResultRendererInterface;
+use MySchema\Command\CommandOutputRendererInterface;
 
-interface TemplateRendererInterface extends AcionResultRendererInterface
+interface TemplateRendererInterface extends CommandOutputRendererInterface
 {
     public function setTemplate(string $template): void;
 }

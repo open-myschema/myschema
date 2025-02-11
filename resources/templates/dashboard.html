@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html data-ms-bind-attr-lang="language">
+<html>
     <head>
         <meta charset="UTF-8">
         <link href="/static/css/pico.css" rel="stylesheet">
         <script src="/static/js/htmx.min.js"></script>
+    </head>
     <body data-hx-boost="true">
         <nav data-ms-block="main::top-navbar"></nav>
         <main class="container">
             <section>
                 <h3>Apps</h3>
                 <nav>
-                    <a data-ms-block="main::dashboard-apps" data-ms-block-type="repeating" data-ms-bind-value="apps"></a>
+                    <a data-ms-block="main::dashboard-apps" data-ms-bind-value="apps"></a>
                 </nav>
             </section>
         </main>

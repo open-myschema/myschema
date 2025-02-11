@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace MySchema\Server\Runtime\Provider;
 
 use Mezzio\Router\RouteCollectorInterface;
-use MySchema\Action\ActionMiddleware;
+use MySchema\Command\CommandMiddleware;
 use MySchema\Server\Middleware\LazyLoadingMiddleware;
 use Psr\Container\ContainerInterface;
+
+use function array_merge;
+use function strtolower;
 
 trait RuntimeProviderTrait
 {
@@ -21,7 +24,7 @@ trait RuntimeProviderTrait
                 continue;
             }
 
-            $prefix = $appConfig['info']['route_prefix'] ?? \strtolower($app);
+            $prefix = $appConfig['info']['route_prefix'] ?? strtolower($app);
             foreach ($appConfig['routes'] as $routePrefix => $routeConfig) {
                 $routes["$prefix$routePrefix"] = $routeConfig;
             }
@@ -34,7 +37,7 @@ trait RuntimeProviderTrait
         foreach ($routes as $pattern => $routeConfig) {
             // prep middleware
             $middleware = $routeConfig['middleware'] ?? [];
-            $middleware[] = ActionMiddleware::class;
+            $middleware[] = CommandMiddleware::class;
 
             // collect route
             $route = $routeCollector->route(
@@ -45,7 +48,7 @@ trait RuntimeProviderTrait
             );
 
             // set options
-            $route->setOptions(\array_merge($defaultRouteOptions, $routeConfig['options'] ?? []));
+            $route->setOptions(array_merge($defaultRouteOptions, $routeConfig['options'] ?? []));
         }
     }
 }

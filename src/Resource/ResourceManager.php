@@ -60,18 +60,6 @@ class ResourceManager
         ];
     }
 
-    public function getForm(string $formName): array|bool
-    {
-        $config = $this->resourcesConfig['forms'] ?? [];
-        $block = $this->getResource($formName, $config);
-        if (! $block) return false;
-
-        $parser = $this->getParser($config[$formName]);
-        if (! $parser) return false;
-
-        return $parser->parseResource($block);
-    }
-
     public function getQuery(string $connectionDriver, string $queryName): string
     {
         $config = $this->resourcesConfig['queries'] ?? [];
@@ -147,12 +135,6 @@ class ResourceManager
             'config' => $config[$templateName],
             'contents' => $parser->parseResource($template)
         ];
-    }
-
-    private function getResource(string $resourceName, array $config): string|bool
-    {
-        if (! \array_key_exists($resourceName, $config)) return false;
-        return $this->filesystem->read($config[$resourceName]);
     }
 
     private function getParser(string $resourceName): ResourceParserInterface|bool

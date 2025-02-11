@@ -10,7 +10,6 @@ final class ConfigProvider
     {
         return [
             'actions' => $this->getActionsConfig(),
-            'console' => $this->getConsoleCommands(),
             'dependencies' => $this->getDependencies(),
             'middleware_pipeline' => $this->getMiddlewarePipeline(),
         ];
@@ -19,17 +18,8 @@ final class ConfigProvider
     private function getActionsConfig(): array
     {
         return [
-            Action\ServerActionsListener::class => [
-                Action\HttpRequestAction::class,
-            ],
-        ];
-    }
-
-    private function getConsoleCommands(): array
-    {
-        return [
-            'commands' => [
-                Console\HelloWorldCommand::class,
+            Listener\ServerActionsListener::class => [
+                Event\HttpRequestEvent::class,
             ],
         ];
     }
@@ -38,7 +28,6 @@ final class ConfigProvider
     {
         return [
             'factories' => [
-                Console\HelloWorldCommand::class => \Laminas\ServiceManager\Factory\InvokableFactory::class,
                 ErrorResponseGenerator::class => ErrorResponseGeneratorFactory::class,
                 \Mezzio\Router\RouterInterface::class => RouterFactory::class,
                 Middleware\ErrorHandlerMiddleware::class => Middleware\ErrorHandlerMiddlewareFactory::class,

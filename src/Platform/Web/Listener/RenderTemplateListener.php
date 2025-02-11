@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace MySchema\Platform\Web\Listener;
 
-use MySchema\Action\ActionHandlerInterface;
-use MySchema\Platform\Web\Action\HtmlRenderedAction;
+use MySchema\EventManager\EventListenerInterface;
+use MySchema\Platform\Web\Event\HtmlRenderedEvent;
 
-class RenderTemplateListener implements ActionHandlerInterface
+class RenderTemplateListener implements EventListenerInterface
 {
     public function getListeners(): array
     {
         return [
-            HtmlRenderedAction::class => [$this, 'onHtmlRendered'],
+            HtmlRenderedEvent::class => [$this, 'onHtmlRendered'],
         ];
     }
 
-    public function onHtmlRendered(HtmlRenderedAction $action): void
+    public function onHtmlRendered(HtmlRenderedEvent $action): void
     {
-        // $html = $action->getHtml();
-        // $dom = \Dom\HTMLDocument::createFromString($html);
-        // $head = $dom->head;
-        // if ($head instanceof \Dom\HTMLElement) {
-        //     $meta = $dom->createElement('meta');
-        //     $meta->setAttribute('name', 'generator');
-        //     $meta->setAttribute('value', 'myschema');
-        //     $head->appendChild($meta);
-        // }
+        $html = $action->getHtml();
+        $dom = \Dom\HTMLDocument::createFromString($html);
+        $head = $dom->head;
+        if ($head instanceof \Dom\HTMLElement) {
+            $meta = $dom->createElement('meta');
+            $meta->setAttribute('name', 'generator');
+            $meta->setAttribute('value', 'myschema');
+            $head->appendChild($meta);
+        }
 
-        // $action->setHtml($dom->saveHTML());
+        $action->setHtml($dom->saveHTML());
     }
 }

@@ -6,9 +6,9 @@ namespace MySchema\Server\Runtime\Provider;
 
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use MySchema\Server\Action\HttpRequestAction;
 use MySchema\Server\Runtime\RuntimeInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use MySchema\Server\Event\HttpRequestEvent;
 
 class Apache2Handler implements RuntimeInterface
 {
@@ -22,10 +22,10 @@ class Apache2Handler implements RuntimeInterface
         $request = ServerRequestFactory::fromGlobals();
 
         // handle the request
-        $action = $this->eventDispatcher->dispatch(new HttpRequestAction($request));
+        $event = $this->eventDispatcher->dispatch(new HttpRequestEvent($request));
 
         // emit the response
         $emitter = new SapiEmitter;
-        $emitter->emit($action->getResponse());
+        $emitter->emit($event->getResponse());
     }
 }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace MySchema\Content\Repository;
 
-use MySchema\Content\Model\Content;
+use MySchema\Content\Thing;
 use MySchema\Database\Connection;
+
 use function array_map;
 use function implode;
 use function is_array;
@@ -36,7 +37,7 @@ class ContentRepository
     }
 
     public function fetch(): mixed
-    {        
+    {
         $query = $this->getSelectQuery();
         $result = $this->connection->fetch($query, $this->getSelectParams());
         if (! is_array($result)) {
@@ -66,7 +67,7 @@ class ContentRepository
         $hydrated = [];
         foreach ($processedResult as $row) {
             $object = new $this->hydrator;
-            assert($object instanceof Content);
+            assert($object instanceof Thing);
 
             $hydrated[] = $object->hydrate($row);
         }
@@ -223,7 +224,7 @@ class ContentRepository
         $where = $this->getSelectWhere();
         $orderBy = $this->getSelectOrderBy();
         $limit = $this->getSelectLimit();
-        
+
         return "SELECT $fields FROM $from $where $orderBy $limit";
     }
 }

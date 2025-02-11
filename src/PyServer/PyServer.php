@@ -6,8 +6,10 @@ namespace MySchema\PyServer;
 
 use Laminas\Diactoros\RequestFactory;
 use Psr\Http\Client\ClientInterface;
-use function json_encode;
+use InvalidArgumentException;
+
 use function json_decode;
+use function json_encode;
 use function sprintf;
 
 class PyServer
@@ -22,7 +24,7 @@ class PyServer
     public function runScript(string $app, string $module, string $function, array $args = []): array
     {
         if (! isset($this->appsConfig[$app])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "App %s not found in config",
                 $app
             ));

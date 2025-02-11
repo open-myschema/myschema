@@ -34,7 +34,8 @@ async def main(data: RequestPayload):
     # execute function
     if not data['args']:
         return func()
-
-    return func(args=data['args'])
+    
+    args = json.loads(data['args'])
+    return func(**args)
 
 app.run()

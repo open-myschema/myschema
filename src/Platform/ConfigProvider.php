@@ -10,6 +10,7 @@ class ConfigProvider
     {
         return [
             'actions' => $this->getActionsConfig(),
+            'commands' => $this->getCommands(),
             'dependencies' => $this->getDependencies(),
         ];
     }
@@ -18,8 +19,15 @@ class ConfigProvider
     {
         return [
             Web\Listener\RenderTemplateListener::class => [
-                Web\Action\HtmlRenderedAction::class,
+                Web\Event\HtmlRenderedEvent::class,
             ],
+        ];
+    }
+
+    private function getCommands(): array
+    {
+        return [
+            'platform:render-web-template' => Web\Command\RenderTemplateCommand::class,
         ];
     }
 
@@ -29,6 +37,7 @@ class ConfigProvider
             'factories' => [
                 PlatformMiddleware::class => PlatformMiddlewareFactory::class,
                 RestAPI\RestAPIPlatform::class => RestAPI\RestAPIPlatformFactory::class,
+                Web\Command\RenderTemplateCommand::class => \MySchema\Command\CommandFactory::class,
                 Web\DomTemplate\DomTemplateRenderer::class => Web\DomTemplate\DomTemplateRendererFactory::class,
                 Web\HtmlTemplate\HtmlTemplateRenderer::class => Web\HtmlTemplate\HtmlTemplateRenderer::class,
                 Web\TemplateRendererInterface::class => Web\HtmlTemplate\HtmlTemplateRendererFactory::class,

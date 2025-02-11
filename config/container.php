@@ -7,7 +7,7 @@ use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
-use MySchema\Action\LazyActionListener;
+use MySchema\EventManager\LazyActionListener;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
 // load configuration

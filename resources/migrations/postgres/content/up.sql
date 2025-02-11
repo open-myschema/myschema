@@ -4,7 +4,7 @@ CREATE TABLE content (
     name VARCHAR,
     image VARCHAR,
     description VARCHAR,
-    identifier VARCHAR,
+    identifier VARCHAR UNIQUE,
     url VARCHAR,
     owner BIGINT NOT NULL,
     visibility SMALLINT NOT NULL DEFAULT 0,

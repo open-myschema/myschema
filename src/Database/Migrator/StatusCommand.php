@@ -4,22 +4,17 @@ declare(strict_types= 1);
 
 namespace MySchema\Database\Migrator;
 
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use MySchema\Command\BaseCommand;
 
-final class StatusCommand extends Command
+use function array_key_exists;
+use function array_keys;
+
+final class StatusCommand extends BaseCommand
 {
     use MigrationTrait;
-
-    private string $name = "migration:status";
-
-    public function __construct(private ContainerInterface $container)
-    {
-        parent::__construct($this->name);
-    }
 
     public function configure(): void
     {
@@ -40,7 +35,7 @@ final class StatusCommand extends Command
         $rows = [];
         $config = $this->container->get('config')['migrations'];
         foreach ($config as $database => $migrations) {
-            foreach (\array_keys($migrations) as $migration) {
+            foreach (array_keys($migrations) as $migration) {
                 $key = "$database-$migration";
                 if ($key === "main-initial") {
                     continue;
@@ -50,19 +45,24 @@ final class StatusCommand extends Command
                     'database' => $database,
                     'migration' => $migration,
                     'description' => $migrations[$migration]['description'] ?? '',
-                    'status' => \array_key_exists($key, $reshapedData) && $reshapedData[$key]['status'] == 1
+                    'status' => array_key_exists($key, $reshapedData) && $reshapedData[$key]['status'] == 1
                         ? 'Done'
                         : 'Pending',
-                    'executed' => \array_key_exists($key, $reshapedData) && $reshapedData[$key]['executed_at'] !== NULL
+                    'executed' => array_key_exists($key, $reshapedData) && $reshapedData[$key]['executed_at'] !== NULL
                         ? $reshapedData[$key]['executed_at']
                         : '',
                 ];
             }
         }
-        
+
         // display status table
         $io->table(['Database', 'Migration', 'Description', 'Status', 'Executed'], $rows);
 
-        return Command::SUCCESS;
+        return BaseCommand::SUCCESS;
+    }
+
+    public function isAuthorized(): bool
+    {
+        return true;
     }
 }

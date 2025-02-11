@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace MySchema\Platform\Web\HtmlTemplate;
 
 use Laminas\Escaper\Escaper;
-use MySchema\Action\ActionResult;
 use MySchema\Platform\Web\TemplateRendererInterface;
 use MySchema\Resource\ResourceManager;
+use Symfony\Component\Console\Output\OutputInterface;
+use MySchema\Command\Psr7ResponseOutputInterface;
 
 class HtmlTemplateRenderer implements TemplateRendererInterface
 {
@@ -21,7 +22,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
     {
     }
 
-    public function render(ActionResult $result): string
+    public function render(OutputInterface $output): string
     {
         if (! isset($this->template)) {
             throw new \RuntimeException(
@@ -29,12 +30,14 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
             );
         }
 
-        $params = match ($result->getDataType()) {
-            "array" => $result->getData(),
-            "int", "string", "null", "bool" => ['value' => $result->getData()],
-            default => [],
-        };
         $params['site_title'] = 'MySchema';
+        if ($output instanceof Psr7ResponseOutputInterface) {
+            $params = match ($output->getDataType()) {
+                "array" => $output->getData(),
+                "int", "string", "null", "bool" => ['value' => $output->getData()],
+                default => [],
+            };
+        }
 
         $template = $this->resourceManager->getTemplate($this->template);
         $document = \Dom\HTMLDocument::createFromString($template['contents']);
@@ -73,7 +76,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         $value = $element->getAttribute(self::ATTRIBUTE_BIND_VALUE);
         $element->removeAttribute(self::ATTRIBUTE_BIND_VALUE);
         if (isset($params[$value]) && \is_scalar($params[$value])) {
-            $element->textContent = $this->escaper->escapeHtml($params[$value]);
+            $element->textContent = $this->escaper->escapeHtml((string) $params[$value]);
         }
     }
 

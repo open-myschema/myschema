@@ -12,3 +12,4 @@ venv/
 .buildpath
 .project
 .pydevproject
+uploads/

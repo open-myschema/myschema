@@ -13,7 +13,8 @@ $config = new ConfigAggregator([
     \Laminas\Validator\ConfigProvider::class,
     \Mezzio\Router\ConfigProvider::class,
     \MySchema\Server\ConfigProvider::class,
-    \MySchema\Action\ConfigProvider::class,
+    \MySchema\Command\ConfigProvider::class,
+    \MySchema\EventManager\ConfigProvider::class,
     \MySchema\Database\ConfigProvider::class,
     \MySchema\Platform\ConfigProvider::class,
     \MySchema\Resource\ConfigProvider::class,
@@ -21,7 +22,6 @@ $config = new ConfigAggregator([
     \MySchema\Content\ConfigProvider::class,
     \MySchema\PyServer\ConfigProvider::class,
     \MySchema\Helper\ConfigProvider::class,
-    \MySchema\Admin\ConfigProvider::class,
     \MySchema\App\ConfigProvider::class,
     new PhpFileProvider(realpath(__DIR__) . '/*{local.php}'),
 ]);
