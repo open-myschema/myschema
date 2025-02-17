@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Content\Action;
+namespace MySchema\Content\Command;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\InputFilter\InputFilter;
@@ -46,7 +46,7 @@ class CreateContentCommand extends BaseCommand
         }
 
         // validate input
-        $inputFilter = $this->composeInputFilter($input->getOption('input_filters', []));
+        $inputFilter = $this->composeInputFilter($input->getOption('input_filters'));
         $inputFilter->setData($content->toArray());
         if (! $inputFilter->isValid()) {
             $output->writeln($inputFilter->getMessages());

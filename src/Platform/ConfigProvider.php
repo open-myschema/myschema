@@ -38,9 +38,10 @@ class ConfigProvider
                 PlatformMiddleware::class => PlatformMiddlewareFactory::class,
                 RestAPI\RestAPIPlatform::class => RestAPI\RestAPIPlatformFactory::class,
                 Web\Command\RenderTemplateCommand::class => \MySchema\Command\CommandFactory::class,
-                Web\DomTemplate\DomTemplateRenderer::class => Web\DomTemplate\DomTemplateRendererFactory::class,
-                Web\HtmlTemplate\HtmlTemplateRenderer::class => Web\HtmlTemplate\HtmlTemplateRenderer::class,
-                Web\TemplateRendererInterface::class => Web\HtmlTemplate\HtmlTemplateRendererFactory::class,
+                Web\Template\Engine\DomTemplate\DomTemplateRenderer::class => Web\Template\Engine\DomTemplate\DomTemplateRendererFactory::class,
+                Web\Template\Engine\HtmlTemplate\HtmlTemplateRenderer::class => Web\Template\Engine\HtmlTemplate\HtmlTemplateRenderer::class,
+                Web\Template\Engine\Twig\TwigTemplateRenderer::class => Web\Template\Engine\Twig\TwigTemplateRendererFactory::class,
+                Web\Template\TemplateRendererInterface::class => Web\Template\Engine\HtmlTemplate\HtmlTemplateRendererFactory::class,
                 Web\WebPlatform::class => Web\WebPlatformFactory::class,
             ],
         ];

@@ -114,9 +114,6 @@ class ConfigProvider
             'migrations' => $this->getMigrations(),
             'queries' => $this->getQueries(),
             'templates' => [
-                'main::content-dashboard' => [
-                    'file' => '/resources/templates/content/dashboard.html',
-                ],
                 'main::content-category-dashboard' => [
                     'file' => '/resources/templates/content/category_dashboard.html',
                 ],

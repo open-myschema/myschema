@@ -34,7 +34,11 @@ class ConfigProvider
                     'repeating' => true,
                 ],
             ],
-            'templates' => [],
+            'templates' => [
+                'main::home-dashboard' => [
+                    'file' => '/resources/templates/home/dashboard.twig',
+                ],
+            ],
         ];
     }
 
@@ -43,9 +47,9 @@ class ConfigProvider
         return [
             '/' => [
                 'methods' => ['GET', 'POST'],
-                'name' => 'main::content-dashboard',
+                'name' => 'main::home',
                 'options' => [
-                    'template' => 'main::content-dashboard',
+                    'template' => 'main::home-dashboard',
                 ],
             ],
         ];

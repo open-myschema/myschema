@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MySchema\Content\Action;
 
-use MySchema\Action\Action;
-use MySchema\Action\ActionResult;
 use Psr\Container\ContainerInterface;
 use MySchema\Database\ConnectionFactory;
 use MySchema\Helper\ServiceFactoryTrait;

@@ -2,13 +2,13 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Platform\Web\DomTemplate;
+namespace MySchema\Platform\Web\Template\Engine\DomTemplate;
 
-use MySchema\Action\ActionResult;
-use MySchema\Platform\Web\DomTemplate\Resource\Block;
-use MySchema\Platform\Web\DomTemplate\Resource\BlockConfig;
-use MySchema\Platform\Web\TemplateRendererInterface;
+use MySchema\Platform\Web\Template\TemplateRendererInterface;
+use MySchema\Platform\Web\Template\Engine\DomTemplate\Resource\Block;
+use MySchema\Platform\Web\Template\Engine\DomTemplate\Resource\BlockConfig;
 use MySchema\Resource\ResourceManager;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class DomTemplateRenderer implements TemplateRendererInterface
 {
@@ -18,7 +18,7 @@ class DomTemplateRenderer implements TemplateRendererInterface
     {
     }
 
-    public function render(ActionResult $result): string
+    public function render(OutputInterface $result): string
     {
         $params = match ($result->getDataType()) {
             "array" => $result->getData(),
@@ -37,7 +37,7 @@ class DomTemplateRenderer implements TemplateRendererInterface
         $body = $this->renderBody($page, $config, $params);
 
         $html->appendChild($head);
-        $html->appendChild($body);     
+        $html->appendChild($body);
 
         return "<!DOCTYPE html>" . $page->saveHTML($html);
     }

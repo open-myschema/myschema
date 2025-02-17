@@ -194,7 +194,7 @@ class ResourceManager
             return new JsonResourceParser;
         }
 
-        if (false !== strpos($resourceName, '.html')) {
+        if (false !== strpos($resourceName, '.html') || false !== strpos($resourceName, '.twig')) {
             return new HtmlResourceParser;
         }
 

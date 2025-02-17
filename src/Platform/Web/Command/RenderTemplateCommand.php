@@ -69,7 +69,6 @@ class RenderTemplateCommand extends BaseCommand
                 $data[$name] = $result;
             }
         }
-        var_dump($data);
 
         if ($output instanceof Psr7ResponseOutputInterface) {
             $output->setData($data, 'array');

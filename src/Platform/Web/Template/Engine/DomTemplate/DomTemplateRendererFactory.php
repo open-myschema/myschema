@@ -2,7 +2,7 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Platform\Web\DomTemplate;
+namespace MySchema\Platform\Web\Template\Engine\DomTemplate;
 
 use MySchema\Resource\ResourceManager;
 use Psr\Container\ContainerInterface;

@@ -28,6 +28,7 @@
 		"mezzio/mezzio-fastroute" : "^3.12",
 		"league/flysystem" : "^3.29",
 		"psr/http-client" : "^1.0",
-		"guzzlehttp/guzzle" : "^7.9"
+		"guzzlehttp/guzzle" : "^7.9",
+		"twig/twig": "^3.20"
 	}
 }

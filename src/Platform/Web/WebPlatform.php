@@ -13,16 +13,20 @@ use MySchema\Command\Psr7ResponseOutputInterface;
 use MySchema\Helper\ServiceFactoryTrait;
 use MySchema\Platform\PlatformInterface;
 use MySchema\Platform\SimpleJsonRenderer;
-use MySchema\Platform\Web\DomTemplate\DomTemplateRenderer;
 use MySchema\Platform\Web\Event\HtmlRenderedEvent;
+use MySchema\Platform\Web\Template\TemplateRendererInterface;
+use MySchema\Platform\Web\Template\Engine\DomTemplate\DomTemplateRenderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use InvalidArgumentException;
 
+use function assert;
 use function is_string;
 use function sprintf;
 use function strpos;
+use MySchema\Platform\Web\Template\Engine\Twig\TwigTemplateRenderer;
 
 class WebPlatform implements PlatformInterface
 {
@@ -86,9 +90,14 @@ class WebPlatform implements PlatformInterface
         // DomTemplate supported formats
         $domTemplateSupported = ['json'];
         foreach ($domTemplateSupported as $supported) {
-            if (FALSE !== strpos($templateName, $supported)) {
+            if (false !== strpos($templateName, $supported)) {
                 return $this->container->get(DomTemplateRenderer::class);
             }
+        }
+
+        // twig templates
+        if (false !== strpos($templateName, '.twig')) {
+            return $this->container->get(TwigTemplateRenderer::class);
         }
 
         if ($this->container->has(TemplateRendererInterface::class)) {
@@ -98,7 +107,7 @@ class WebPlatform implements PlatformInterface
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "Unsupported template format for template %s",
             $template
         ));

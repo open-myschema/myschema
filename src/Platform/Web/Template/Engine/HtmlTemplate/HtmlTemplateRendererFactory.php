@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Platform\Web\HtmlTemplate;
+namespace MySchema\Platform\Web\Template\Engine\HtmlTemplate;
 
 use Laminas\Escaper\Escaper;
 use MySchema\Helper\ServiceFactoryTrait;
