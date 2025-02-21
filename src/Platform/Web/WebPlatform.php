@@ -16,6 +16,7 @@ use MySchema\Platform\SimpleJsonRenderer;
 use MySchema\Platform\Web\Event\HtmlRenderedEvent;
 use MySchema\Platform\Web\Template\TemplateRendererInterface;
 use MySchema\Platform\Web\Template\Engine\DomTemplate\DomTemplateRenderer;
+use MySchema\Platform\Web\Template\Engine\Twig\TwigTemplateRenderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,7 +27,6 @@ use function assert;
 use function is_string;
 use function sprintf;
 use function strpos;
-use MySchema\Platform\Web\Template\Engine\Twig\TwigTemplateRenderer;
 
 class WebPlatform implements PlatformInterface
 {
@@ -83,20 +83,21 @@ class WebPlatform implements PlatformInterface
         }
 
         // resolve the template renderer
-        $template = $this->resolveTemplate($request, $result);
-        $config = $this->container->get('config')['resources']['templates'] ?? [];
-        $templateName = $config[$template]['file'] ?? '';
+        $templateName = $this->resolveTemplate($request, $result);
+        $resourceManager = $this->getResourceManager($this->container);
+        $templateConfig = $resourceManager->getTemplate($templateName);
+        $templateFilename = $templateConfig['filename'];
 
         // DomTemplate supported formats
         $domTemplateSupported = ['json'];
         foreach ($domTemplateSupported as $supported) {
-            if (false !== strpos($templateName, $supported)) {
+            if (false !== strpos($templateFilename, $supported)) {
                 return $this->container->get(DomTemplateRenderer::class);
             }
         }
 
         // twig templates
-        if (false !== strpos($templateName, '.twig')) {
+        if (false !== strpos($templateFilename, '.twig')) {
             return $this->container->get(TwigTemplateRenderer::class);
         }
 
@@ -109,13 +110,13 @@ class WebPlatform implements PlatformInterface
 
         throw new InvalidArgumentException(sprintf(
             "Unsupported template format for template %s",
-            $template
+            $templateName
         ));
     }
 
     private function resolveTemplate(ServerRequestInterface $request, OutputInterface $output, string $default = 'main::error-404'): string
     {
-        if ($output->hasTemplate()) {
+        if ($output instanceof Psr7ResponseOutputInterface && $output->hasTemplate()) {
             return $output->getTemplate();
         }
 

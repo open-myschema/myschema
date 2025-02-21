@@ -184,7 +184,8 @@ class ResourceManager
 
         return [
             'config' => $config[$templateName],
-            'contents' => $parser->parseResource($template)
+            'contents' => $parser->parseResource($template),
+            'filename' => $config[$templateName]['file'],
         ];
     }
 

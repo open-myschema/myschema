@@ -47,7 +47,7 @@ class RenderTemplateCommand extends BaseCommand
 
         if (isset($options['queries'])) {
             foreach ($options['queries'] as $name => $config) {
-                $connection = $this->getDatabaseConnection($config['connection']);
+                $connection = $this->getDatabaseConnection($config['connection'] ?? 'main');
                 $query = $resourceManager->getQuery($connection->getDriver(), $config['name']);
                 $result = $connection->fetchAll($query, $config['defaults'] ?? []);
                 if (! isset($config['json_decode'])) {
@@ -70,6 +70,7 @@ class RenderTemplateCommand extends BaseCommand
             }
         }
 
+        $output->writeln("Template rendered");
         if ($output instanceof Psr7ResponseOutputInterface) {
             $output->setData($data, 'array');
         }

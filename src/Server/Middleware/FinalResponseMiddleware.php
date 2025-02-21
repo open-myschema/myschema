@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace MySchema\Server\Middleware;
 
-use Fig\Http\Message\StatusCodeInterface;
-use MySchema\Action\ActionResult;
+use MySchema\Command\Output\Psr7ResponseOutput;
 use MySchema\Platform\PlatformInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
 use function assert;
 
 class FinalResponseMiddleware implements MiddlewareInterface
@@ -22,7 +22,7 @@ class FinalResponseMiddleware implements MiddlewareInterface
 
         return $platform->formatResponse(
             $request,
-            new ActionResult(null, StatusCodeInterface::STATUS_NOT_FOUND)
+            new Psr7ResponseOutput()
         );
     }
 }

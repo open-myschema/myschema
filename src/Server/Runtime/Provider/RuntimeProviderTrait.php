@@ -9,8 +9,6 @@ use MySchema\Command\CommandMiddleware;
 use MySchema\Server\Middleware\LazyLoadingMiddleware;
 use Psr\Container\ContainerInterface;
 
-use function array_merge;
-use function in_array;
 use function strtolower;
 
 trait RuntimeProviderTrait
@@ -19,27 +17,23 @@ trait RuntimeProviderTrait
     {
         // @todo validate routes
         $routes = $container->get('config')['routes'] ?? [];
-//         $apps = $container->get('apps');
-//         foreach ($apps as $app => $appConfig) {
-//             if (! isset($appConfig['routes'])) {
-//                 continue;
-//             }
+        foreach ($container->get('apps') ?? [] as $app => $appConfig) {
+            if (! isset($appConfig['routes'])) {
+                continue;
+            }
 
-//             $prefix = $appConfig['info']['route_prefix'] ?? strtolower($app);
-//             foreach ($appConfig['routes'] as $routePrefix => $routeConfig) {
-//                 $routes["$prefix$routePrefix"] = $routeConfig;
-//             }
-//         }
-
-        // prep default route options
-        $defaultRouteOptions = [];
+            $prefix = $appConfig['info']['tag'] ?? strtolower($app);
+            foreach ($appConfig['routes'] ?? [] as $routePrefix => $routeConfig) {
+                $routes["/$prefix$routePrefix"] = $routeConfig;
+            }
+        }
 
         $routeCollector = $container->get(RouteCollectorInterface::class);
         foreach ($routes as $pattern => $routeConfig) {
             // prep middleware
             $middleware = $routeConfig['middleware'] ?? [];
-            if (! in_array(CommandMiddleware::class, $middleware, true)) {
-                $middleware[] = CommandMiddleware::class;
+            if (empty($middleware)) {
+                $middleware = CommandMiddleware::class;
             }
 
             // collect route
@@ -51,7 +45,7 @@ trait RuntimeProviderTrait
             );
 
             // set options
-            $route->setOptions(array_merge($defaultRouteOptions, $routeConfig['options'] ?? []));
+            $route->setOptions($routeConfig['options'] ?? []);
         }
     }
 }

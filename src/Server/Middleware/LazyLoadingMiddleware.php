@@ -12,6 +12,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use InvalidArgumentException;
+
+use function get_debug_type;
+use function implode;
+use function is_array;
+use function is_callable;
+use function is_string;
+use function sprintf;
 
 class LazyLoadingMiddleware implements MiddlewareInterface
 {
@@ -36,16 +44,16 @@ class LazyLoadingMiddleware implements MiddlewareInterface
         }
 
         // convert callables to MiddlewareInterface
-        if (\is_callable($this->middleware)) {
+        if (is_callable($this->middleware)) {
             return (new CallableMiddlewareDecorator($this->middleware))->process($request, $handler);
         }
 
-        if (\is_array($this->middleware)) {
+        if (is_array($this->middleware)) {
             $middleware = new MiddlewarePipe();
             foreach ($this->middleware as $class) {
-                if (\is_string($class)
-                    || \is_array($class)
-                    || \is_callable($class)
+                if (is_string($class)
+                    || is_array($class)
+                    || is_callable($class)
                     || $class instanceof RequestHandlerInterface
                     || $class instanceof MiddlewareInterface
                 ) {
@@ -59,7 +67,7 @@ class LazyLoadingMiddleware implements MiddlewareInterface
             return $middleware->process($request, $handler);
         }
 
-        if (! \is_string($this->middleware)) {
+        if (! is_string($this->middleware)) {
             $this->throwInvalidMiddlewareException($this->middleware);
         }
 
@@ -69,10 +77,10 @@ class LazyLoadingMiddleware implements MiddlewareInterface
 
     private function throwInvalidMiddlewareException(mixed $class): void
     {
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "Unsupported middleware type %s. Allowed types include: %s",
-            \get_debug_type($class),
-            \implode(', ', ['string', 'array', 'callable', RequestHandlerInterface::class, MiddlewareInterface::class])
+            get_debug_type($class),
+            implode(', ', ['string', 'array', 'callable', RequestHandlerInterface::class, MiddlewareInterface::class])
         ));
     }
 }

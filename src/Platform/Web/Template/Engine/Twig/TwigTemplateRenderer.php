@@ -10,7 +10,7 @@ use MySchema\Resource\ResourceManager;
 use Twig\Loader\ArrayLoader;
 use Twig\Environment;
 use RuntimeException;
-
+use MySchema\Command\Output\Psr7ResponseOutput;
 
 class TwigTemplateRenderer implements TemplateRendererInterface
 {
@@ -28,12 +28,20 @@ class TwigTemplateRenderer implements TemplateRendererInterface
             );
         }
 
+        if ($output instanceof Psr7ResponseOutput) {
+            $context = match ($output->getDataType()) {
+                "array" => $output->getData(),
+                "int", "string", "bool" => ['value' => $output->getData()],
+                default => [],
+            };
+        }
+
         $template = $this->resourceManager->getTemplate($this->template);
         $loader = new ArrayLoader([
             'template' => $template['contents']
         ]);
         $twig = new Environment($loader, $this->twigEnvironmentOptions);
-        return $twig->render('template');
+        return $twig->render('template', $context ?? []);
     }
 
     public function setTemplate(string $template): void

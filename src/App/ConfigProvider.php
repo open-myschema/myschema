@@ -9,9 +9,17 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'commands' => $this->getCommands(),
             'dependencies' => $this->getDependencies(),
             'resources' => $this->getResources(),
             'routes' => $this->getRoutes(),
+        ];
+    }
+
+    private function getCommands(): array
+    {
+        return [
+            'main:render-home-page' => Command\RenderHomePageCommand::class,
         ];
     }
 
@@ -50,6 +58,15 @@ class ConfigProvider
                 'name' => 'main::home',
                 'options' => [
                     'template' => 'main::home-dashboard',
+                    'command' => 'main:render-home-page',
+                ],
+            ],
+            '/settings' => [
+                'methods' => ['GET', 'POST'],
+                'name' => 'main::settings-page',
+                'options' => [
+                    'template' => 'main::settings-dashboard',
+                    'command' => 'main:render-settings-page',
                 ],
             ],
         ];

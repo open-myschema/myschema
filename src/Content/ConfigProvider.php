@@ -10,9 +10,7 @@ class ConfigProvider
     {
         return [
             'content' => $this->getContentConfig(),
-            'dependencies' => $this->getDependencies(),
             'resources' => $this->getResources(),
-            'routes' => $this->getRoutes(),
         ];
     }
 
@@ -23,40 +21,42 @@ class ConfigProvider
                 'main::creative-work' => [
                     'name' => 'Creative Work',
                     'description' => 'The most generic kind of creative work, including books, movies, photographs, software programs, etc.',
+                    'tag' => 'creative',
                 ],
                 'main::event' => [
                     'name' => 'Event',
                     'description' => 'An event happening at a certain time and location, such as a concert, lecture, or festival.',
+                    'tag' => 'event',
                 ],
                 'main::organization' => [
                     'name' => 'Organization',
                     'description' => 'An organization such as a school, NGO, corporation, club, etc.',
+                    'tag' => 'organization',
                 ],
                 'main::sports-organization' => [
                     'name' => 'Sports Organization',
                     'description' => '',
                     'parent' => 'main::organization',
+                    'tag' => 'sports-organization',
                 ],
                 'main::person' => [
                     'name' => 'Person',
                     'description' => 'A person (alive, dead, or fictional).',
+                    'tag' => 'persion',
                 ],
                 'main::place' => [
                     'name' => 'Place',
                     'description' => 'Entities that have a somewhat fixed, physical extension.',
+                    'tag' => 'place',
                 ],
                 'main::sports-event' => [
                     'name' => 'Sports Event',
                     'description' => 'An event happening at a certain time and location, such as a concert, lecture, or festival.',
                     'parent' => 'main::event',
+                    'tag' => 'sports-event',
                 ],
             ],
         ];
-    }
-
-    private function getDependencies(): array
-    {
-        return [];
     }
 
     private function getMigrations(): array
@@ -75,7 +75,7 @@ class ConfigProvider
     private function getQueries(): array
     {
         return [
-            'main::content-types' => [
+            'main::get-content-types' => [
                 'postgres' => [
                     'file' => '/resources/queries/postgres/content/content_types.sql',
                 ],
@@ -119,26 +119,6 @@ class ConfigProvider
                 ],
                 'main::error-404' => [
                     'file' => '/resources/templates/error/404.html',
-                ],
-            ],
-        ];
-    }
-
-    private function getRoutes(): array
-    {
-        return [
-            '/t/{category}' => [
-                'methods' => ['GET', 'POST'],
-                'name' => 'main::content-category-dashboard',
-                'options' => [
-                    'template' => 'main::content-category-dashboard',
-                ],
-            ],
-            '/c/{identifier}' => [
-                'methods' => ['GET', 'POST'],
-                'name' => 'main::content',
-                'options' => [
-                    'template' => 'main::content-category-dashboard',
                 ],
             ],
         ];

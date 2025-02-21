@@ -41,6 +41,7 @@ class CommandMiddleware implements MiddlewareInterface
             // @todo dispatch error event
             return $handler->handle($request);
         }
+
         try {
             $command = new $this->commandsConfig[$commandName]($this->container, $commandName);
             if (! $command instanceof BaseCommand) {

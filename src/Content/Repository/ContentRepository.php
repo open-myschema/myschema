@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MySchema\Content\Repository;
 
-use MySchema\Content\Thing;
+use MySchema\Content\Type\Content;
 use MySchema\Database\Connection;
 
 use function array_map;
@@ -67,7 +67,7 @@ class ContentRepository
         $hydrated = [];
         foreach ($processedResult as $row) {
             $object = new $this->hydrator;
-            assert($object instanceof Thing);
+            assert($object instanceof Content);
 
             $hydrated[] = $object->hydrate($row);
         }
