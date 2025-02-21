@@ -66,8 +66,6 @@ class WebPlatform implements PlatformInterface
         // dispatch html rendered event
         $event = $this->getEventDispatcher($this->container)
             ->dispatch(new HtmlRenderedEvent(
-                $request,
-                $output,
                 $html
             ));
         assert($event instanceof HtmlRenderedEvent);
