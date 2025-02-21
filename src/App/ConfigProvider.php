@@ -28,6 +28,7 @@ class ConfigProvider
         return [
             'factories' => [
                 AppManager::class => AppManagerFactory::class,
+                Command\RenderHomePageCommand::class => \MySchema\Command\CommandFactory::class,
             ],
         ];
     }

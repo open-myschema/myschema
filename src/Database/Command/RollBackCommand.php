@@ -50,7 +50,7 @@ final class RollBackCommand extends BaseCommand
         $connection = $this->getDatabaseConnection($database);
         $resourceManager = $this->getResourceManager($this->container);
         try {
-            $query = $resourceManager->getMigration($connection->getDriver(), $name, 'down');
+            $query = $resourceManager->getMigration($name, 'down');
         } catch (Throwable $e) {
             $io->error($e->getMessage());
             return BaseCommand::FAILURE;

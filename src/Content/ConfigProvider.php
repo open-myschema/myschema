@@ -64,10 +64,8 @@ class ConfigProvider
         return [
             'main::create-content-tables' => [
                 'description' => 'Create content tables',
-                'postgres' => [
-                    'up' => '/resources/migrations/postgres/content/up.sql',
-                    'down' => '/resources/migrations/postgres/content/down.sql',
-                ],
+                'up' => '/resources/migrations/content/up.sql',
+                'down' => '/resources/migrations/content/down.sql',
             ],
         ];
     }
@@ -76,29 +74,19 @@ class ConfigProvider
     {
         return [
             'main::get-content-types' => [
-                'postgres' => [
-                    'file' => '/resources/queries/postgres/content/content_types.sql',
-                ],
+                'file' => '/resources/queries/content/content_types.sql',
             ],
             'main::create-content' => [
-                'postgres' => [
-                    'file' => '/resources/queries/postgres/content/create_content.sql',
-                ],
+                'file' => '/resources/queries/content/create_content.sql',
             ],
             'main::create-content-meta' => [
-                'postgres' => [
-                    'file' => '/resources/queries/postgres/content/create_content_meta.sql',
-                ],
+                'file' => '/resources/queries/content/create_content_meta.sql',
             ],
             'main::create-content-tag' => [
-                'postgres' => [
-                    'file' => '/resources/queries/postgres/content/create_content_tag.sql',
-                ],
+                'file' => '/resources/queries/content/create_content_tag.sql',
             ],
             'main::create-content-type' => [
-                'postgres' => [
-                    'file' => '/resources/queries/postgres/content/create_content_type.sql',
-                ],
+                'file' => '/resources/queries/content/create_content_type.sql',
             ],
         ];
     }

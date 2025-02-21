@@ -79,10 +79,10 @@ class CreateContentCommand extends BaseCommand
 
         // prepare queries
         $resources = $this->getResourceManager($this->container);
-        $contentQuery = $resources->getQuery($connection->getDriver(), 'main::create-content');
-        $contentMetaQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-meta');
-        $contentTagQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-tag');
-        $contentTypeQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-type');
+        $contentQuery = $resources->getQuery('main::create-content');
+        $contentMetaQuery = $resources->getQuery('main::create-content-meta');
+        $contentTagQuery = $resources->getQuery('main::create-content-tag');
+        $contentTypeQuery = $resources->getQuery('main::create-content-type');
 
         // prepare values
         $values = $inputFilter->getValues();

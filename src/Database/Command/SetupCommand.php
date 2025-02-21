@@ -14,6 +14,7 @@ use Throwable;
 
 use function explode;
 use function strlen;
+use function time;
 
 class SetupCommand extends BaseCommand
 {
@@ -32,7 +33,7 @@ class SetupCommand extends BaseCommand
         // get initial migration
         $connection = $this->getDatabaseConnection();
         $resourceManager = $this->getResourceManager($this->container);
-        $migration = $resourceManager->getMigration($connection->getDriver(), 'main::setup-migrations', 'up');
+        $migration = $resourceManager->getMigration('main::setup-migrations', 'up');
 
         // execute the migration
         $connection->beginTransaction();
@@ -50,6 +51,16 @@ class SetupCommand extends BaseCommand
             $io->error($e->getMessage());
             return BaseCommand::FAILURE;
         }
+
+        $stmt = "INSERT INTO migration (connection, name, status, created_at, executed_at)
+            VALUES(:connection, :name, :status, :created_at, :executed_at)";
+        $connection->write($stmt, [
+            'connection' => 'main',
+            'name' => 'main::setup-migrations',
+            'status' => 1,
+            'created_at' => time(),
+            'executed_at' => time(),
+        ]);
 
         $io->success("Migration table setup");
         return BaseCommand::SUCCESS;

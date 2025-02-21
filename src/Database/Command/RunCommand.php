@@ -18,6 +18,7 @@ use function array_values;
 use function explode;
 use function sprintf;
 use function strlen;
+use function time;
 
 final class RunCommand extends BaseCommand
 {
@@ -27,10 +28,10 @@ final class RunCommand extends BaseCommand
     public function configure(): void
     {
         $this->addOption(
-            name: 'database',
-            shortcut: 'd',
+            name: 'connection',
+            shortcut: 'c',
             mode: InputOption::VALUE_OPTIONAL,
-            description: 'The database to perform migrations',
+            description: 'The connection to perform migrations',
             default: 'main'
         );
         $this->addOption(
@@ -45,7 +46,7 @@ final class RunCommand extends BaseCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
+
         // validate the input
         $validator = new CommandInputValidator($this->getDefinition());
         if (! $validator->isValid($input->getOptions() + $input->getArguments())) {
@@ -54,12 +55,12 @@ final class RunCommand extends BaseCommand
         }
 
         // get details
-        $database = $input->getOption('database');
+        $connectionName = $input->getOption('connection');
         $name = $input->getOption('name');
 
         // get the database connection
         try {
-            $connection = $this->getDatabaseConnection($database);
+            $connection = $this->getDatabaseConnection($connectionName);
         } catch (Throwable $e) {
             $io->error($e->getMessage());
             return BaseCommand::FAILURE;
@@ -69,7 +70,7 @@ final class RunCommand extends BaseCommand
         $connection->beginTransaction();
         $resourceManager = $this->getResourceManager($this->container);
         try {
-            $migration = $resourceManager->getMigration($connection->getDriver(), $name, 'up');
+            $migration = $resourceManager->getMigration($name, 'up');
             foreach (explode(';', $migration) as $sql) {
                 if (strlen($sql) === 0) {
                     continue;
@@ -89,17 +90,18 @@ final class RunCommand extends BaseCommand
         // if migration fails at any point, also rollback this query..
 
         // update migration table
-        $insertMigration = "INSERT INTO migration (database, name, status)
-            VALUES(:database, :name, :status)";
+        $insertMigration = "INSERT INTO migration (connection, name, status, executed_at)
+            VALUES(:connection, :name, :status, :executed_at)";
         $connection->write($insertMigration, [
-            'database' => $database,
+            'connection' => $connectionName,
             'name' => $name,
-            'status' => 1
+            'status' => 1,
+            'executed_at' => time(),
         ]);
 
         $io->success(sprintf(
             "Migration %s on database %s successfully run",
-            $name, $database
+            $name, $connectionName
         ));
         return BaseCommand::SUCCESS;
     }

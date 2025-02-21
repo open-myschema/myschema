@@ -48,7 +48,7 @@ class RenderTemplateCommand extends BaseCommand
         if (isset($options['queries'])) {
             foreach ($options['queries'] as $name => $config) {
                 $connection = $this->getDatabaseConnection($config['connection'] ?? 'main');
-                $query = $resourceManager->getQuery($connection->getDriver(), $config['name']);
+                $query = $resourceManager->getQuery($config['name']);
                 $result = $connection->fetchAll($query, $config['defaults'] ?? []);
                 if (! isset($config['json_decode'])) {
                     $data[$name] = $result;

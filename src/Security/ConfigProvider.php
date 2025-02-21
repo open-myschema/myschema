@@ -31,10 +31,8 @@ class ConfigProvider
         return [
             'main::create-account-tables' => [
                 'description' => 'Create account and account_meta tables',
-                'postgres' => [
-                    'up' => '/resources/migrations/postgres/account/up.sql',
-                    'down' => '/resources/migrations/postgres/account/down.sql',
-                ],
+                'up' => '/resources/migrations/account/up.sql',
+                'down' => '/resources/migrations/account/down.sql',
             ],
         ];
     }

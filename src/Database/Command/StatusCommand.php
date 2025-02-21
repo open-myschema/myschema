@@ -32,7 +32,7 @@ final class StatusCommand extends BaseCommand
         $connection = $this->getDatabaseConnection();
         try {
             $data = $connection->read(
-                "SELECT database, name, status, executed_at
+                "SELECT connection, name, status, executed_at
                 FROM migration
                 ORDER BY executed_at DESC"
             );
@@ -41,8 +41,6 @@ final class StatusCommand extends BaseCommand
             return BaseCommand::FAILURE;
         }
 
-        // prepare data
-        $reshapedData = [];
         foreach ($data as $row) {
             $reshapedData[$row['name']] = $row;
         }

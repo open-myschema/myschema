@@ -19,7 +19,7 @@ class RenderContentCategoryDashboard extends Action
         $data = [];
         $connection = (new ConnectionFactory($container))->connect();
         $resources = $this->getResourceManager($container);
-        $query = $resources->getQuery($connection->getDriver(), self::QUERY_CONTENT_TYPES);
+        $query = $resources->getQuery(self::QUERY_CONTENT_TYPES);
         $result = $connection->fetchAll($query);
         var_dump($result);
         $data['types'] = \array_map(function ($row) {

@@ -42,10 +42,8 @@ class ConfigProvider
         return [
             'main::setup-migrations' => [
                 'description' => 'Set up the migration table',
-                'postgres' => [
-                    'up' => '/resources/migrations/postgres/initial/up.sql',
-                    'down' => '/resources/migrations/postgres/initial/down.sql',
-                ],
+                'up' => '/resources/migrations/initial/up.sql',
+                'down' => '/resources/migrations/initial/down.sql',
             ],
         ];
     }

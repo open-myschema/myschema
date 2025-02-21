@@ -73,7 +73,7 @@ class ResourceManager
         ];
     }
 
-    public function getMigration(string $connectionDriver, string $migrationName, string $direction): string
+    public function getMigration(string $migrationName, string $direction): string
     {
         $config = $this->resourcesConfig['migrations'] ?? [];
         if (! array_key_exists($migrationName, $config)) {
@@ -83,27 +83,18 @@ class ResourceManager
             ));
         }
 
-        if (! isset($config[$migrationName][$connectionDriver])) {
+        if (! isset($config[$migrationName][$direction])) {
             throw new InvalidArgumentException(sprintf(
-                "Migration %s for connection driver %s not found in configuration",
+                "migration %s %s file not found in configuration",
                 $migrationName,
-                $connectionDriver
+                $direction
             ));
         }
 
-        if (! isset($config[$migrationName][$connectionDriver][$direction])) {
-            throw new InvalidArgumentException(sprintf(
-                "%s migration %s for connection driver %s not found in configuration",
-                $direction,
-                $migrationName,
-                $connectionDriver
-            ));
-        }
-
-        return $this->filesystem->read($config[$migrationName][$connectionDriver][$direction]);
+        return $this->filesystem->read($config[$migrationName][$direction]);
     }
 
-    public function getQuery(string $connectionDriver, string $queryName): string
+    public function getQuery(string $queryName): string
     {
         $config = $this->resourcesConfig['queries'] ?? [];
         if (! array_key_exists($queryName, $config)) {
@@ -121,23 +112,14 @@ class ResourceManager
             ));
         }
 
-        if (! isset($config[$queryName][$connectionDriver])) {
+        if (! isset($config[$queryName]['file'])) {
             throw new InvalidArgumentException(sprintf(
-                "Query %s for connection driver %s not found in configuration",
+                "Query %s has no configured file key",
                 $queryName,
-                $connectionDriver
             ));
         }
 
-        if (! isset($config[$queryName][$connectionDriver]['file'])) {
-            throw new InvalidArgumentException(sprintf(
-                "Query %s for connection driver %s has no configured file key",
-                $queryName,
-                $connectionDriver
-            ));
-        }
-
-        return $this->filesystem->read($config[$queryName][$connectionDriver]['file']);
+        return $this->filesystem->read($config[$queryName]['file']);
     }
 
     public function getTemplate(string $templateName): array|bool|string
