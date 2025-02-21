@@ -13,13 +13,17 @@ use MySchema\Command\Psr7ResponseOutputInterface;
 use MySchema\Helper\ServiceFactoryTrait;
 use MySchema\Platform\PlatformInterface;
 use MySchema\Platform\SimpleJsonRenderer;
-use MySchema\Platform\Web\DomTemplate\DomTemplateRenderer;
 use MySchema\Platform\Web\Event\HtmlRenderedEvent;
+use MySchema\Platform\Web\Template\TemplateRendererInterface;
+use MySchema\Platform\Web\Template\Engine\DomTemplate\DomTemplateRenderer;
+use MySchema\Platform\Web\Template\Engine\Twig\TwigTemplateRenderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use InvalidArgumentException;
 
+use function assert;
 use function is_string;
 use function sprintf;
 use function strpos;
@@ -62,8 +66,6 @@ class WebPlatform implements PlatformInterface
         // dispatch html rendered event
         $event = $this->getEventDispatcher($this->container)
             ->dispatch(new HtmlRenderedEvent(
-                $request,
-                $output,
                 $html
             ));
         assert($event instanceof HtmlRenderedEvent);
@@ -79,16 +81,22 @@ class WebPlatform implements PlatformInterface
         }
 
         // resolve the template renderer
-        $template = $this->resolveTemplate($request, $result);
-        $config = $this->container->get('config')['resources']['templates'] ?? [];
-        $templateName = $config[$template]['file'] ?? '';
+        $templateName = $this->resolveTemplate($request, $result);
+        $resourceManager = $this->getResourceManager($this->container);
+        $templateConfig = $resourceManager->getTemplate($templateName);
+        $templateFilename = $templateConfig['filename'];
 
         // DomTemplate supported formats
         $domTemplateSupported = ['json'];
         foreach ($domTemplateSupported as $supported) {
-            if (FALSE !== strpos($templateName, $supported)) {
+            if (false !== strpos($templateFilename, $supported)) {
                 return $this->container->get(DomTemplateRenderer::class);
             }
+        }
+
+        // twig templates
+        if (false !== strpos($templateFilename, '.twig')) {
+            return $this->container->get(TwigTemplateRenderer::class);
         }
 
         if ($this->container->has(TemplateRendererInterface::class)) {
@@ -98,15 +106,15 @@ class WebPlatform implements PlatformInterface
             }
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             "Unsupported template format for template %s",
-            $template
+            $templateName
         ));
     }
 
     private function resolveTemplate(ServerRequestInterface $request, OutputInterface $output, string $default = 'main::error-404'): string
     {
-        if ($output->hasTemplate()) {
+        if ($output instanceof Psr7ResponseOutputInterface && $output->hasTemplate()) {
             return $output->getTemplate();
         }
 

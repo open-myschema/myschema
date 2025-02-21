@@ -7,19 +7,14 @@ namespace MySchema\Command;
 use Mezzio\Router\RouteResult;
 use MySchema\Command\Input\Psr7RequestInput;
 use MySchema\Command\Output\Psr7ResponseOutput;
-use MySchema\Platform\PlatformInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use InvalidArgumentException;
 use Throwable;
-
-use function array_key_exists;
-use function assert;
-use function get_debug_type;
-use function sprintf;
 
 class CommandMiddleware implements MiddlewareInterface
 {
@@ -41,6 +36,7 @@ class CommandMiddleware implements MiddlewareInterface
             // @todo dispatch error event
             return $handler->handle($request);
         }
+
         try {
             $command = new $this->commandsConfig[$commandName]($this->container, $commandName);
             if (! $command instanceof BaseCommand) {
@@ -60,10 +56,6 @@ class CommandMiddleware implements MiddlewareInterface
         $output = new Psr7ResponseOutput;
         $command->execute($input, $output);
 
-        // return the result
-        $platform = $request->getAttribute(PlatformInterface::class);
-        assert($platform instanceof PlatformInterface);
-
-        return $platform->formatResponse($request, $output);
+        return $handler->handle($request->withAttribute(OutputInterface::class, $output));
     }
 }

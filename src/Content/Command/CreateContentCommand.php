@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Content\Action;
+namespace MySchema\Content\Command;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Laminas\InputFilter\InputFilter;
@@ -35,7 +35,7 @@ class CreateContentCommand extends BaseCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         // get content object
-        $content = $this->getParam('content');
+        $content = $input->getOption('content');
         if (! $content instanceof Content) {
             $output->writeln("No content found");
             if ($output instanceof Psr7ResponseOutputInterface) {
@@ -46,7 +46,7 @@ class CreateContentCommand extends BaseCommand
         }
 
         // validate input
-        $inputFilter = $this->composeInputFilter($this->getParam('input_filters', []));
+        $inputFilter = $this->composeInputFilter($input->getOption('input_filters'));
         $inputFilter->setData($content->toArray());
         if (! $inputFilter->isValid()) {
             $output->writeln($inputFilter->getMessages());
@@ -61,7 +61,7 @@ class CreateContentCommand extends BaseCommand
 
         // check if content already exists via type and identifier
         $contentExists = (new ContentExistsValidator($connection))->exists(
-            params: $this->getParam('check_exists', [])
+            params: $input->getOption('check_exists')
         );
         if (false !== $contentExists) {
             $output->writeln(sprintf(
@@ -79,10 +79,10 @@ class CreateContentCommand extends BaseCommand
 
         // prepare queries
         $resources = $this->getResourceManager($this->container);
-        $contentQuery = $resources->getQuery($connection->getDriver(), 'main::create-content');
-        $contentMetaQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-meta');
-        $contentTagQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-tag');
-        $contentTypeQuery = $resources->getQuery($connection->getDriver(), 'main::create-content-type');
+        $contentQuery = $resources->getQuery('main::create-content');
+        $contentMetaQuery = $resources->getQuery('main::create-content-meta');
+        $contentTagQuery = $resources->getQuery('main::create-content-tag');
+        $contentTypeQuery = $resources->getQuery('main::create-content-type');
 
         // prepare values
         $values = $inputFilter->getValues();

@@ -8,16 +8,18 @@
     <body data-hx-boost="true">
         <nav data-ms-block="main::top-navbar"></nav>
         <main class="container">
-            <section>
-                <h3>Content</h3>
-                <nav>
-                    <a data-ms-block="main::dashboard-apps" data-ms-bind-value="apps"></a>
-                </nav>
+            <section style="text-align:center;">
+                <h1>Search</h1>
+                <form action="" method="post">
+                    <input type="text" name="search" placeholder="Search content" required>
+                </form>
             </section>
             <section>
                 <h3>Apps</h3>
                 <nav>
-                    <a data-ms-block="main::dashboard-apps" data-ms-bind-value="apps"></a>
+                    {% for app in apps %}
+                    <a href="/{{ app.tag }}">{{ app.name }}</a>
+                    {% endfor %}
                 </nav>
             </section>
         </main>

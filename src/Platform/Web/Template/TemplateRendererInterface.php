@@ -2,7 +2,7 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Platform\Web;
+namespace MySchema\Platform\Web\Template;
 
 use MySchema\Command\CommandOutputRendererInterface;
 

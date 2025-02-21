@@ -4,25 +4,32 @@ declare(strict_types=1);
 
 namespace MySchema\Server\Middleware;
 
-use Fig\Http\Message\StatusCodeInterface;
-use MySchema\Action\ActionResult;
-use MySchema\Platform\PlatformInterface;
+use Laminas\Diactoros\ResponseFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use function assert;
+use Symfony\Component\Console\Output\OutputInterface;
+use MySchema\Command\Psr7ResponseOutputInterface;
+use MySchema\Platform\PlatformInterface;
 
 class FinalResponseMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $platform = $request->getAttribute(PlatformInterface::class);
-        assert($platform instanceof PlatformInterface);
+        $response = (new ResponseFactory())->createResponse(404);
+        $output = $request->getAttribute(OutputInterface::class);
+        if ($output instanceof Psr7ResponseOutputInterface) {
+            if ($output->getDataType() === ResponseInterface::class) {
+                return $output->getData();
+            }
 
-        return $platform->formatResponse(
-            $request,
-            new ActionResult(null, StatusCodeInterface::STATUS_NOT_FOUND)
-        );
+            $platform = $request->getAttribute(PlatformInterface::class);
+            if ($platform instanceof PlatformInterface) {
+                $response = $platform->formatResponse($request, $output);
+            }
+        }
+
+        return $response;
     }
 }

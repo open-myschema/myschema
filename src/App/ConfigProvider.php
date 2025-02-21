@@ -9,8 +9,17 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'commands' => $this->getCommands(),
             'dependencies' => $this->getDependencies(),
             'resources' => $this->getResources(),
+            'routes' => $this->getRoutes(),
+        ];
+    }
+
+    private function getCommands(): array
+    {
+        return [
+            'main:render-home-page' => Command\RenderHomePageCommand::class,
         ];
     }
 
@@ -19,6 +28,7 @@ class ConfigProvider
         return [
             'factories' => [
                 AppManager::class => AppManagerFactory::class,
+                Command\RenderHomePageCommand::class => \MySchema\Command\CommandFactory::class,
             ],
         ];
     }
@@ -33,7 +43,33 @@ class ConfigProvider
                     'repeating' => true,
                 ],
             ],
-            'templates' => [],
+            'templates' => [
+                'main::home-dashboard' => [
+                    'file' => '/resources/templates/home/dashboard.twig',
+                ],
+            ],
+        ];
+    }
+
+    private function getRoutes(): array
+    {
+        return [
+            '/' => [
+                'methods' => ['GET', 'POST'],
+                'name' => 'main::home',
+                'options' => [
+                    'template' => 'main::home-dashboard',
+                    'command' => 'main:render-home-page',
+                ],
+            ],
+            '/settings' => [
+                'methods' => ['GET', 'POST'],
+                'name' => 'main::settings-page',
+                'options' => [
+                    'template' => 'main::settings-dashboard',
+                    'command' => 'main:render-settings-page',
+                ],
+            ],
         ];
     }
 }

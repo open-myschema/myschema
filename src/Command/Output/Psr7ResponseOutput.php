@@ -11,7 +11,7 @@ use Throwable;
 final class Psr7ResponseOutput extends BufferedOutput implements Psr7ResponseOutputInterface
 {
     private mixed $data;
-    private string $dataType;
+    private string $dataType = 'null';
     private Throwable $error;
     private array $headers = [];
     private int $statusCode = 200;

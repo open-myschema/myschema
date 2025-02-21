@@ -11,17 +11,17 @@ class ConfigProvider
         return [
             'commands' => $this->getCommands(),
             'dependencies' => $this->getDependencies(),
-            'migrations' => $this->getMigrations(),
+            'resources' => $this->getResources(),
         ];
     }
 
     private function getCommands(): array
     {
         return [
-            'migrations:rollback' => Migrator\RollBackCommand::class,
-            'migrations:run' => Migrator\RunCommand::class,
-            'migrations:setup' => Migrator\SetupCommand::class,
-            'migrations:status' => Migrator\StatusCommand::class,
+            'migrations:rollback' => Command\RollBackCommand::class,
+            'migrations:run' => Command\RunCommand::class,
+            'migrations:setup' => Command\SetupCommand::class,
+            'migrations:status' => Command\StatusCommand::class,
         ];
     }
 
@@ -29,10 +29,10 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                Migrator\RollBackCommand::class => \MySchema\Command\CommandFactory::class,
-                Migrator\RunCommand::class => \MySchema\Command\CommandFactory::class,
-                Migrator\SetupCommand::class => \MySchema\Command\CommandFactory::class,
-                Migrator\StatusCommand::class => \MySchema\Command\CommandFactory::class,
+                Command\RollBackCommand::class => \MySchema\Command\CommandFactory::class,
+                Command\RunCommand::class => \MySchema\Command\CommandFactory::class,
+                Command\SetupCommand::class => \MySchema\Command\CommandFactory::class,
+                Command\StatusCommand::class => \MySchema\Command\CommandFactory::class,
             ],
         ];
     }
@@ -40,12 +40,18 @@ class ConfigProvider
     private function getMigrations(): array
     {
         return [
-            'main' => [
-                'initial' => [
-                    'up' => '/resources/migrations/initial/up.sql',
-                    'down' => '/resources/migrations/initial/down.sql',
-                ],
+            'main::setup-migrations' => [
+                'description' => 'Set up the migration table',
+                'up' => '/resources/migrations/initial/up.sql',
+                'down' => '/resources/migrations/initial/down.sql',
             ],
+        ];
+    }
+
+    private function getResources(): array
+    {
+        return [
+            'migrations' => $this->getMigrations(),
         ];
     }
 }

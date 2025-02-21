@@ -10,7 +10,9 @@ class ConfigProvider
     {
         return [
             'dependencies' => $this->getDependencies(),
-            'migrations' => $this->getMigrations(),
+            'resources' => [
+                'migrations' => $this->getMigrations(),
+            ],
         ];
     }
 
@@ -27,12 +29,10 @@ class ConfigProvider
     private function getMigrations(): array
     {
         return [
-            'main' => [
-                'accounts' => [
-                    'description' => 'Create account and account_meta tables',
-                    'up' => '/resources/migrations/account/up.sql',
-                    'down' => '/resources/migrations/account/down.sql',
-                ]
+            'main::create-account-tables' => [
+                'description' => 'Create account and account_meta tables',
+                'up' => '/resources/migrations/account/up.sql',
+                'down' => '/resources/migrations/account/down.sql',
             ],
         ];
     }

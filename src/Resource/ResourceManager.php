@@ -5,6 +5,14 @@ declare(strict_types=1);
 namespace MySchema\Resource;
 
 use League\Flysystem\Filesystem;
+use InvalidArgumentException;
+use RuntimeException;
+
+use function array_key_exists;
+use function get_debug_type;
+use function is_array;
+use function sprintf;
+use function strpos;
 
 class ResourceManager
 {
@@ -12,26 +20,31 @@ class ResourceManager
     {
     }
 
+    public function getAllMigrations(): array
+    {
+        return $this->resourcesConfig['migrations'] ?? [];
+    }
+
     public function getBlock(string $blockName): array
     {
         $config = $this->resourcesConfig['blocks'] ?? [];
-        if (! \array_key_exists($blockName, $config)) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! array_key_exists($blockName, $config)) {
+            throw new InvalidArgumentException(sprintf(
                 "Block %s not found in configuration",
                 $blockName
             ));
         }
 
-        if (! \is_array($config[$blockName])) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! is_array($config[$blockName])) {
+            throw new InvalidArgumentException(sprintf(
                 "Expected block %s config to be an array, %s given instead",
                 $blockName,
-                \get_debug_type($config[$blockName])
+                get_debug_type($config[$blockName])
             ));
         }
 
         if (! isset($config[$blockName]['file'])) {
-            throw new \InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "Invalid block %s config. `file` key not found",
                 $blockName
             ));
@@ -39,7 +52,7 @@ class ResourceManager
 
         $block = $this->filesystem->read($config[$blockName]['file']);
         if (! $block) {
-            throw new \InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "Block %s, file %s not found",
                 $blockName,
                 $config[$blockName]['file']
@@ -48,7 +61,7 @@ class ResourceManager
 
         $parser = $this->getParser($config[$blockName]['file']);
         if (! $parser) {
-            throw new \RuntimeException(\sprintf(
+            throw new RuntimeException(sprintf(
                 "Parser for block %s not found",
                 $blockName
             ));
@@ -60,55 +73,75 @@ class ResourceManager
         ];
     }
 
-    public function getQuery(string $connectionDriver, string $queryName): string
+    public function getMigration(string $migrationName, string $direction): string
+    {
+        $config = $this->resourcesConfig['migrations'] ?? [];
+        if (! array_key_exists($migrationName, $config)) {
+            throw new InvalidArgumentException(sprintf(
+                "Migration %s not found in configuration",
+                $migrationName
+            ));
+        }
+
+        if (! isset($config[$migrationName][$direction])) {
+            throw new InvalidArgumentException(sprintf(
+                "migration %s %s file not found in configuration",
+                $migrationName,
+                $direction
+            ));
+        }
+
+        return $this->filesystem->read($config[$migrationName][$direction]);
+    }
+
+    public function getQuery(string $queryName): string
     {
         $config = $this->resourcesConfig['queries'] ?? [];
-        if (! \array_key_exists($queryName, $config)) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! array_key_exists($queryName, $config)) {
+            throw new InvalidArgumentException(sprintf(
                 "Query %s not found in configuration",
                 $queryName
             ));
         }
 
-        if (! \is_array($config[$queryName])) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! is_array($config[$queryName])) {
+            throw new InvalidArgumentException(sprintf(
                 "Expected query %s config to be an array, %s given instead",
                 $queryName,
-                \get_debug_type($config[$queryName])
+                get_debug_type($config[$queryName])
             ));
         }
 
-        if (! isset($config[$queryName][$connectionDriver])) {
-            throw new \InvalidArgumentException(\sprintf(
-                "Query %s for connection driver %s not found in configuration",
+        if (! isset($config[$queryName]['file'])) {
+            throw new InvalidArgumentException(sprintf(
+                "Query %s has no configured file key",
                 $queryName,
-                $connectionDriver
             ));
         }
 
-        return $this->filesystem->read($config[$queryName][$connectionDriver]);
+        return $this->filesystem->read($config[$queryName]['file']);
     }
 
     public function getTemplate(string $templateName): array|bool|string
     {
         $config = $this->resourcesConfig['templates'] ?? [];
-        if (! \array_key_exists($templateName, $config)) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! array_key_exists($templateName, $config)) {
+            throw new InvalidArgumentException(sprintf(
                 "Template %s not found in configuration",
                 $templateName
             ));
         }
 
-        if (! \is_array($config[$templateName])) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (! is_array($config[$templateName])) {
+            throw new InvalidArgumentException(sprintf(
                 "Expected template %s config to be an array, %s given instead",
                 $templateName,
-                \get_debug_type($config[$templateName])
-                ));
+                get_debug_type($config[$templateName])
+            ));
         }
 
         if (! isset($config[$templateName]['file'])) {
-            throw new \InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "Invalid template %s config. `file` key not found",
                 $templateName
             ));
@@ -116,7 +149,7 @@ class ResourceManager
 
         $template = $this->filesystem->read($config[$templateName]['file']);
         if (! $template) {
-            throw new \RuntimeException(\sprintf(
+            throw new RuntimeException(sprintf(
                 "Template %s, file %s not found",
                 $templateName,
                 $config[$templateName]
@@ -125,7 +158,7 @@ class ResourceManager
 
         $parser = $this->getParser($config[$templateName]['file']);
         if (! $parser) {
-            throw new \RuntimeException(\sprintf(
+            throw new RuntimeException(sprintf(
                 "Parser for template %s not found",
                 $templateName
             ));
@@ -133,17 +166,18 @@ class ResourceManager
 
         return [
             'config' => $config[$templateName],
-            'contents' => $parser->parseResource($template)
+            'contents' => $parser->parseResource($template),
+            'filename' => $config[$templateName]['file'],
         ];
     }
 
     private function getParser(string $resourceName): ResourceParserInterface|bool
     {
-        if (false !== \strpos($resourceName, '.json')) {
+        if (false !== strpos($resourceName, '.json')) {
             return new JsonResourceParser;
         }
 
-        if (false !== \strpos($resourceName, '.html')) {
+        if (false !== strpos($resourceName, '.html') || false !== strpos($resourceName, '.twig')) {
             return new HtmlResourceParser;
         }
 

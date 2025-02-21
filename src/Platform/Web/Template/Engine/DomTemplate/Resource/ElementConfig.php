@@ -2,7 +2,7 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Platform\Web\DomTemplate\Resource;
+namespace MySchema\Platform\Web\Template\Engine\DomTemplate\Resource;
 
 class ElementConfig
 {

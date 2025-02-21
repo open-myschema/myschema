@@ -2,7 +2,7 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Platform\Web\DomTemplate\Resource;
+namespace MySchema\Platform\Web\Template\Engine\DomTemplate\Resource;
 
 use Laminas\Escaper\Escaper;
 
@@ -32,7 +32,7 @@ final class Element
         // sectioning
         'address', 'article', 'aside', 'footer', 'header', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'main',
         'nav', 'search', 'section',
-        
+
 
         // table
         'caption', 'col', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr',

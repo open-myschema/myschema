@@ -2,12 +2,12 @@
 
 declare(strict_types= 1);
 
-namespace MySchema\Database\Migrator;
+namespace MySchema\Helper;
 
 use MySchema\Database\Connection;
 use MySchema\Database\ConnectionFactory;
 
-trait MigrationTrait
+trait DatabaseConnectionTrait
 {
     private function getDatabaseConnection(string $connectionName = 'main'): Connection
     {

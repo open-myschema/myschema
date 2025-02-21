@@ -23,6 +23,10 @@ final class ResourceManagerFactory
                 $config['blocks'][$name] = $blockConfig;
             }
 
+            foreach ($appConfig['resources']['migrations'] ?? [] as $name => $migrationConfig) {
+                $config['migrations'][$name] = $migrationConfig;
+            }
+
             foreach ($appConfig['resources']['queries'] ?? [] as $name => $queryConfig) {
                 $config['queries'][$name] = $queryConfig;
             }

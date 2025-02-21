@@ -2,13 +2,17 @@
 
 declare(strict_types=1);
 
-namespace MySchema\Platform\Web\HtmlTemplate;
+namespace MySchema\Platform\Web\Template\Engine\HtmlTemplate;
 
 use Laminas\Escaper\Escaper;
-use MySchema\Platform\Web\TemplateRendererInterface;
+use MySchema\Command\Psr7ResponseOutputInterface;
+use MySchema\Platform\Web\Template\TemplateRendererInterface;
 use MySchema\Resource\ResourceManager;
 use Symfony\Component\Console\Output\OutputInterface;
-use MySchema\Command\Psr7ResponseOutputInterface;
+use RuntimeException;
+
+use function is_array;
+use function is_string;
 
 class HtmlTemplateRenderer implements TemplateRendererInterface
 {
@@ -25,7 +29,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
     public function render(OutputInterface $output): string
     {
         if (! isset($this->template)) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 "Template not set"
             );
         }
@@ -62,7 +66,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         $element->setAttribute('lang', $params['lang'] ?? 'en');
     }
 
-    private function processAttributeBindHref(\Dom\HTMLElement $element, array $params, $debug = false): void
+    private function processAttributeBindHref(\Dom\HTMLElement $element, array $params): void
     {
         $value = $element->getAttribute(self::ATTRIBUTE_BIND_HREF);
         $element->removeAttribute(self::ATTRIBUTE_BIND_HREF);
@@ -71,7 +75,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         }
     }
 
-    private function processAttributeBindValue(\Dom\HTMLElement $element, array $params, $debug = false): void
+    private function processAttributeBindValue(\Dom\HTMLElement $element, array $params): void
     {
         $value = $element->getAttribute(self::ATTRIBUTE_BIND_VALUE);
         $element->removeAttribute(self::ATTRIBUTE_BIND_VALUE);
@@ -80,7 +84,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         }
     }
 
-    private function processElement(\Dom\HTMLDocument $document, \Dom\HTMLElement $element, array $params, $debug = false): void
+    private function processElement(\Dom\HTMLDocument $document, \Dom\HTMLElement $element, array $params): void
     {
         if ($element->hasAttribute(self::ATTRIBUTE_TEMPLATE_BLOCK)) {
             $this->processTemplateBlock($document, $element, $params);
@@ -91,11 +95,11 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         }
 
         if ($element->hasAttribute(self::ATTRIBUTE_BIND_HREF)) {
-            $this->processAttributeBindHref($element, $params, $debug);
+            $this->processAttributeBindHref($element, $params);
         }
 
         if ($element->hasAttribute(self::ATTRIBUTE_BIND_VALUE)) {
-            $this->processAttributeBindValue($element, $params, $debug);
+            $this->processAttributeBindValue($element, $params);
         }
 
         // recursively process child nodes
@@ -104,7 +108,7 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
                 continue;
             }
 
-            $this->processElement($document, $node, $params, $debug);
+            $this->processElement($document, $node, $params);
         }
     }
 
@@ -117,12 +121,12 @@ class HtmlTemplateRenderer implements TemplateRendererInterface
         $block = $this->resourceManager->getBlock($blockName);
         if (isset($block['config']['repeating']) && true === $block['config']['repeating']) {
             $param = $element->getAttribute('data-ms-bind-value');
-            if (\is_string($param) && isset($params[$param]) && \is_array($params[$param])) {
+            if (is_string($param) && isset($params[$param]) && is_array($params[$param])) {
                 foreach ($params[$param] as $item) {
                     $itemElement = $document->createElement($element->tagName);
                     $itemElement->innerHTML = $block['contents'];
                     if (isset($block['config']['innerHTML']) && false === $block['config']['innerHTML']) {
-                        $this->processElement($document, $itemElement->firstChild, $item, true);
+                        $this->processElement($document, $itemElement->firstChild, $item);
                         $element->insertAdjacentElement(\Dom\AdjacentPosition::AfterEnd, $itemElement->firstChild);
                     } else {
                         $this->processElement($document, $itemElement, $item);
